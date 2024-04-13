@@ -1,0 +1,79 @@
+{{ form_start(form,{'attr': {'novalidate': 'novalidate'}} ) }}
+<div class="row">
+    <div class="col-md-6">
+        <div class="form-group">
+            {{ form_label(form.imgEtablissement, 'Image') }}
+            {{ form_widget(form.imgEtablissement, {'attr': {'class': 'form-control'}}) }}
+            <div class="error-message">
+                {{ form_errors(form.imgEtablissement) }}
+            </div>
+        </div>
+        <div class="form-group">
+            {{ form_label(form.nomEtablissement, 'Name') }}
+            {{ form_widget(form.nomEtablissement, {'attr': {'class': 'form-control'}}) }}
+            <div class="error-message">
+                {{ form_errors(form.nomEtablissement) }}
+            </div>
+        </div>
+        <div class="form-group">
+            {{ form_label(form.adresseEtablissement, 'Address') }}
+            {{ form_widget(form.adresseEtablissement, {'attr': {'class': 'form-control'}}) }}
+            <div class="error-message">
+                {{ form_errors(form.adresseEtablissement) }}
+            </div>
+        </div>
+        <div class="form-group">
+            {{ form_label(form.typeEtablissement, 'Type') }}
+            {{ form_widget(form.typeEtablissement, {'attr': {'class': 'form-control'}}) }}
+            <div class="error-message">
+                {{ form_errors(form.typeEtablissement) }}
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="form-group">
+            {{ form_label(form.telEtablissement, 'Telephone') }}
+            {{ form_widget(form.telEtablissement, {'attr': {'class': 'form-control'}}) }}
+            <div class="error-message">
+                {{ form_errors(form.telEtablissement) }}
+            </div>
+        </div>
+        <div class="form-group">
+            {{ form_label(form.directeurEtablissement, 'Director') }}
+            {{ form_widget(form.directeurEtablissement, {'attr': {'class': 'form-control'}}) }}
+            <div class="error-message">
+                {{ form_errors(form.directeurEtablissement) }}
+            </div>
+        </div>
+      {{ form_label(form.dateFondation, 'Foundation Date', {'label_attr': {'class': 'form-label'}}) }}
+        {# Customize classes for the date and time selection fields #}
+        <div class="row">
+            <div class="col-md-4">
+                {{ form_widget(form.dateFondation.date.month, {'attr': {'class': 'form-control'}}) }}
+            </div>
+            <div class="col-md-4">
+                {{ form_widget(form.dateFondation.date.day, {'attr': {'class': 'form-control'}}) }}
+            </div>
+            <div class="col-md-4">
+                {{ form_widget(form.dateFondation.date.year, {'attr': {'class': 'form-control'}}) }}
+            </div>
+        </div>
+        <div class="row mt-2">
+            <div class="col-md-6">
+                {{ form_widget(form.dateFondation.time.hour, {'attr': {'class': 'form-control'}}) }}
+            </div>
+            <div class="col-md-6">
+                {{ form_widget(form.dateFondation.time.minute, {'attr': {'class': 'form-control'}}) }}
+            </div>
+        </div>
+            <div class="error-message">
+                {{ form_errors(form.dateFondation) }}
+         </div>
+</div>
+
+
+</div>
+
+<button type="submit" class="btn btn-primary">{{ button_label|default('Save') }}</button>
+
+{{ form_end(form) }}
