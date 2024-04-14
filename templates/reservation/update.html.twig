@@ -1,0 +1,23 @@
+{% extends '/front/gestion.html.twig' %}
+
+{% block body %}
+    <div class="container-xxl py-5">
+        <h2 class="fw-medium">Update Reservation</h2>
+        <form method="post" novalidate>
+            {{ form_start(f) }}
+            <div class="mb-3">
+                {{ form_label(f.nbPlaces, 'Number of Places', {'label_attr': {'class': 'form-label fw-medium'}}) }}
+                {{ form_widget(f.nbPlaces, {'attr': {'class': 'form-control'}}) }}
+                {% if f.nbPlaces.vars.errors|length > 0 %}
+                    <div class="alert alert-danger">
+                        {% for error in f.nbPlaces.vars.errors %}
+                            <span>{{ error.message }}</span><br>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+            <button type="submit" class="btn btn-primary btn-lg">Update</button>
+            {{ form_end(f) }}   
+        </form>
+    </div>
+{% endblock %}

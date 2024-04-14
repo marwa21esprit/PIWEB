@@ -1,0 +1,213 @@
+{% extends '/front/gestion.html.twig' %}
+
+{% block stylesheets %}
+
+    <style>
+        .bill-card {
+            background-color: #f9f9f9;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+            text-align: center; /* Center the bill */
+        }
+
+        .bill-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: #e5e5e5; /* Change to gray */
+            color: #333; /* Change text color */
+            padding: 10px 20px;
+            border-top-left-radius: 10px;
+            border-top-right-radius: 10px;
+        }
+
+        .bill-header-title {
+            font-size: 24px;
+        }
+
+        .bill-header-total {
+            font-size: 18px;
+        }
+
+
+        .bill-content-item:nth-child(odd) {
+            background-color: #f0f0f0; /* Alternate row background color */
+        }
+
+        .bill-content-item:last-child {
+            border-bottom: 1px solid #ccc; /* Border between last content item and footer */
+        }
+
+        .bill-content-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 20px;
+        }
+
+        .bill-content-left {
+            display: flex;
+            align-items: center;
+        }
+
+        .bill-event-image {
+            width: 70px;
+            height: 70px;
+            border-radius: 10px; /* Rounded corners for image */
+            margin-right: 10px; /* Adjusted margin */
+        }
+
+        .bill-event-details {
+            text-align: left; /* Align text to the left */
+        }
+
+        .bill-event-name {
+            font-size: 20px;
+            margin-bottom: 3px; /* Adjusted margin */
+        }
+
+        .bill-event-time {
+            font-size: 16px;
+            color: #888;
+            margin-bottom: 0; /* Adjusted margin */
+        }
+
+        .bill-content-right {
+            flex-shrink: 0;
+        }
+
+        .bill-event-price {
+            font-size: 18px;
+            text-align: right; /* Align text to the right */
+        }
+
+
+        .bill-ticket-number {
+            font-size: 18px;
+        }
+
+        .bill-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 20px;
+            border-bottom-left-radius: 10px;
+            border-bottom-right-radius: 10px;
+        }
+
+        .bill-footer-total,
+        .bill-footer-amount {
+            font-size: 20px;
+        }
+
+    </style>
+{% endblock %}
+
+{% block body %}
+    <div class="container-xxl py-5">
+        <div class="row justify-content-center">
+            <div class="col-lg-6">
+                <div class="bill-card">
+                    <div class="bill-header">
+                        <h3 class="bill-header-title">Billet</h3>
+                        <p class="bill-header-total">Total</p>
+                    </div>
+                    <div class="bill-content">
+                        <div class="bill-content-item">
+                            <div class="bill-content-left">
+                                <img src="{{ asset('uploads/' ~ reservation.Imagesrc) }}" alt="Event Image" class="bill-event-image">
+                                <div class="bill-event-details">
+                                    <h4 class="bill-event-name">{{ reservation.IdEvent.nameEvent }}</h4>
+                                    <p class="bill-event-time">{{ reservation.IdEvent.dateevent|date }}</p>
+                                </div>
+                            </div>
+                            <div class="bill-content-right">
+                                <p class="bill-event-price">x1</p>
+                                <p class="bill-event-price">{{ reservation.Eventprice }} TND</p>
+                            </div>
+                        </div>
+                        <div class="bill-content-item">
+                            <div class="bill-content-left">
+                                <p class="bill-ticket-left">Nombre de tickets</p>
+                            </div>
+                            <div class="bill-content-right">
+                                <p class="bill-ticket-number">{{ reservation.NbPlaces }}</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bill-footer">
+                        <p class="bill-footer-total">Montant Total:</p>
+                        <p class="bill-footer-amount">{{ reservation.NbPlaces * reservation.Eventprice }} TND</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="bill-card">
+                    <div class="bill-header">
+                        <h3 class="bill-header-title">Payment Details</h3>
+                    </div>
+                    <form method="post" novalidate>
+                        {{ form_start(f) }}
+                        {% if form_errors(f) %}
+                            <div class="alert alert-danger">
+                                {% for error in form_errors(f) %}
+                                    <p style="color: red;">{{ error.message }}</p>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                        <div class="card">
+                            <div class="card-header p-0">
+                                <h2 class="mb-0">
+                                    <button class="btn btn-light btn-block text-left p-3 rounded-0" data-toggle="collapse" data-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+                                        <div class="d-flex align-items-center justify-content-between">
+                                            <span>Credit card</span>
+                                            <div class="icons">
+                                                <img src="https://img.icons8.com/color/48/000000/mastercard-logo.png" width="30">
+                                                <img src="https://img.icons8.com/color/48/000000/visa.png" width="30">
+                                                <img src="https://img.icons8.com/color/48/000000/amex.png" width="30">
+                                                <img src="https://img.icons8.com/color/48/000000/discover.png" width="30">
+                                            </div>
+                                        </div>
+                                    </button>
+                                </h2>
+                            </div>
+                            <div id="collapseOne" class="collapse show" aria-labelledby="headingOne">
+                                <div class="card-body payment-card-body">
+                                    <div class="form-group">
+                                        {{ form_label(f.cardNumber, 'Card Number', {'label_attr': {'class': 'form-label fw-medium'}}) }}
+                                        {{ form_widget(f.cardNumber, {'attr': {'class': 'form-control', 'placeholder': '1234 5678 9012 3456'}}) }}
+                                        {{ form_errors(f.cardNumber) }}
+                                    </div>
+                                    <div class="row mt-3 mb-3">
+                                        <div class="col-md-6">
+                                            {{ form_label(f.expireDate, 'Expiration Date (MM/YYYY)', {'label_attr': {'class': 'form-label fw-medium'}}) }}
+                                            {{ form_widget(f.expireDate, {'attr': {'class': 'form-control', 'placeholder': 'MM/YYYY'}}) }}
+                                            {{ form_errors(f.expireDate) }}
+                                        </div>
+                                        <div class="col-md-6">
+                                            {{ form_label(f.cvv, 'CVV', {'label_attr': {'class': 'form-label fw-medium'}}) }}
+                                            {{ form_widget(f.cvv, {'attr': {'class': 'form-control', 'placeholder': 'CVV'}}) }}
+                                            {{ form_errors(f.cvv) }}
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        {{ form_label(f.name, 'Cardholder Name', {'label_attr': {'class': 'form-label fw-medium'}}) }}
+                                        {{ form_widget(f.name, {'attr': {'class': 'form-control', 'placeholder': 'John Doe'}}) }}
+                                        {{ form_errors(f.name) }}
+                                    </div>
+                                    <button type="submit" class="btn btn-primary btn-lg btn-block mt-3 mb-3">Pay Now</button>
+                                </div>
+                            </div>
+                        </div>
+                        {{ form_end(f) }}
+                    </form>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+{% endblock %}
+
