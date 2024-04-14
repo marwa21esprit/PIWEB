@@ -2,80 +2,7 @@
 
 namespace App\Entity;
 
-<<<<<<< HEAD
-use Doctrine\DBAL\Types\Types;
-use Doctrine\ORM\Mapping as ORM;
 
-/**
- * Etablissement
- *
- * @ORM\Table(name="etablissement")
- * @ORM\Entity
- */
-class Etablissement
-{
-    /**
-     * @var int
-     *
-     * @ORM\Column(name="ID_Etablissement", type="integer", nullable=false)
-     * @ORM\Id
-     * @ORM\GeneratedValue(strategy="IDENTITY")
-     */
-    private $idEtablissement;
-
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="img_Etablissement", type="string", length=255, nullable=false)
-     */
-    private $imgEtablissement;
-
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="Nom_Etablissement", type="string", length=255, nullable=false)
-     */
-    private $nomEtablissement;
-
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="Adresse_Etablissement", type="string", length=255, nullable=false)
-     */
-    private $adresseEtablissement;
-
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="Type_Etablissement", type="string", length=255, nullable=false)
-     */
-    private $typeEtablissement;
-
-    /**
-     * @var int
-     *
-     * @ORM\Column(name="Tel_Etablissement", type="integer", nullable=false)
-     */
-    private $telEtablissement;
-
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="Directeur_Etablissement", type="string", length=255, nullable=false)
-     */
-    private $directeurEtablissement;
-
-    /**
-     * @var \DateTime
-     *
-     * @ORM\Column(name="Date_Fondation", type="date", nullable=false)
-     */
-    private $dateFondation;
-
-    public function getIdEtablissement(): ?int
-    {
-        return $this->idEtablissement;
-=======
 use DateTime;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
@@ -134,7 +61,6 @@ class Etablissement
     public function getIdEtablissement(): ?int
     {
         return $this->ID_Etablissement;
->>>>>>> main
     }
 
     public function getImgEtablissement(): ?string
