@@ -1,3 +1,9 @@
+<<<<<<< HEAD
 index:
     path: /
     controller: App\Controller\Home::index
+=======
+#index:
+#    path: /
+#    controller: App\Controller\DefaultController::index
+>>>>>>> main

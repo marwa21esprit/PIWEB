@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+<<<<<<< HEAD
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -60,6 +61,44 @@ class Certificat
      */
     private $idEtablissement;
 
+=======
+use DateTime;
+use Doctrine\DBAL\Types\Types;
+use Doctrine\ORM\Mapping as ORM;
+use App\Repository\CertificatRepository;
+use Symfony\Component\Validator\Constraints as Assert;
+
+
+#[ORM\Entity(repositoryClass: CertificatRepository::class)]
+class Certificat
+{
+    #[ORM\Id]
+    #[ORM\GeneratedValue(strategy: "AUTO")]
+    #[ORM\Column(type: "integer")]
+    private ?int $idCertificat = null;
+
+
+    #[ORM\Column(length :255)]
+    #[Assert\NotBlank]
+    private ?string $nomCertificat;
+
+    #[ORM\Column(length :255)]
+    private ?string $domaineCertificat;
+
+    #[ORM\Column(length :255)]
+    private ?string $niveau;
+
+    #[ORM\Column(type: "datetime")]
+    #[Assert\LessThan("today", message: "The date of obtaining the certificate must be less than today")]
+    private ?DateTime $dateObtentionCertificat;
+
+
+   #[ORM\ManyToOne(targetEntity:"Etablissement")]
+   #[ORM\JoinColumn(name:"ID_Etablissement", referencedColumnName:"ID_Etablissement")]
+    private $idEtablissement;
+
+
+>>>>>>> main
     public function getIdCertificat(): ?int
     {
         return $this->idCertificat;
