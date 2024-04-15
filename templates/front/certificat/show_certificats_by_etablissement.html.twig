@@ -1,0 +1,31 @@
+{% extends 'base-front.html.twig' %}
+
+{% block title %}Certificats pour {{ etablissement.nomEtablissement }}{% endblock %}
+
+{% block body %}
+    <div class="container">
+        <h1 class="text-center mt-5 mb-4">Certificates for {{ etablissement.nomEtablissement }}</h1>
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                {% if certificats is not empty %}
+                    <div class="list-group">
+                        {% for certificat in certificats %}
+                            <div class="list-group-item">
+                                <h4 class="mb-2">{{ certificat.nomCertificat }}</h4>
+                                <p><strong>Domain:</strong> {{ certificat.domaineCertificat }}</p>
+                                <p><strong>Level:</strong> {{ certificat.niveau }}</p>
+                                <p><strong>Delivration Date:</strong> {{ certificat.dateObtentionCertificat|date('Y-m-d') }}</p>
+                                <!-- Add additional certificat details as needed -->
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="alert alert-warning" role="alert">
+                        No certificate found for this school.
+                    </div>
+                {% endif %}
+                <a href="{{ path('app_etablissement_index') }}" class="btn btn-primary mt-3">Back</a>
+            </div>
+        </div>
+    </div>
+{% endblock %}

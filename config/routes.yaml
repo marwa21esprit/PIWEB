@@ -1,7 +1,3 @@
-index:
-    path: /
-    controller: App\Controller\Home::index
-    
-ajax_validation:
-    path: /validate
-    controller: App\Controller\ValidationController::validate
+#index:
+#    path: /
+#    controller: App\Controller\DefaultController::index
