@@ -20,5 +20,6 @@ class EventController extends AbstractController
             'events'=>$eventsBD,
         ]);
     }
+    #comment
 
 }
