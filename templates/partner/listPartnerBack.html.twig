@@ -1,0 +1,88 @@
+{% extends 'base-back.html.twig' %}
+
+{% block title %}Partner Index{% endblock %}
+
+{% block body %}
+<div class="content-body">
+    <!-- row -->
+    <div class="container-fluid">
+        <div class="row page-titles mx-0">
+            <div class="col-sm-6 p-md-0">
+                <div class="welcome-text">
+                    <h4>All Partners</h4>
+                </div>
+            </div>
+            <div class="col-sm-6 p-md-0 justify-content-sm-end mt-2 mt-sm-0 d-flex">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{{ path('Dashboard') }}">Home</a></li>
+                    <li class="breadcrumb-item active"><a href="javascript:void(0);">Partners</a></li>
+                    <li class="breadcrumb-item active"><a href="javascript:void(0);">All Partners</a></li>
+                </ol>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-lg-12">
+                <ul class="nav nav-pills mb-3">
+                    <a href="{{ path('app_partner_add') }}" class="btn btn-primary">+ Add new</a>
+                </ul>
+            </div>
+        </div>    
+
+        <div class="row tab-content">
+            <div id="grid-view" class="tab-pane fade col-lg-12 show active">
+                <div class="row">
+                    {% for partner in partners %}
+                    <div class="col-lg-4 col-md-6 col-sm-6 col-12">
+                        <div class="card card-profile">
+                            <div class="card-header justify-content-end pb-0">
+                                <!-- Dropdown menu for actions -->
+                                <div class="dropdown">
+                                    <!-- Button trigger dropdown -->
+                                    <button class="btn btn-link" type="button" data-toggle="dropdown">
+                                        <span class="dropdown-dots fs--1"></span>
+                                    </button>
+                                    <!-- Dropdown menu content -->
+                                    <div class="dropdown-menu dropdown-menu-right border py-0">
+                                        <div class="py-2">
+                                            <a class="dropdown-item" href="{{ path('app_partner_update', {'id': partner.idpartner}) }}">Edit</a>
+                                            <a class="dropdown-item text-danger" href="{{ path('app_partner_delete', {'id': partner.idpartner}) }}" onsubmit="return confirm('Are you sure you want to delete this item?');">Delete</a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card-body pt-2">
+                                <div class="text-center">
+                                    <!-- Profile photo -->
+                                    <div class="profile-photo">
+                                        <img src="{{ asset('uploads/' ~ partner.image) }}" alt="{{ partner.namePartner }}" width="250" class="img-fluid rounded-circle" alt="{{ partner.namePartner }}">
+                                    </div>
+                                    <!-- Partner name -->
+                                    <h3 class="mt-4 mb-1">{{ partner.namepartner }}</h3>
+                                    <!-- Partner education -->
+                                    <p class="text-muted">{{ partner.typepartner }}</p>
+                                    <!-- Partner details -->
+                                    <ul class="list-group mb-3 list-group-flush">
+                                        <li class="list-group-item px-0 d-flex justify-content-between">
+                                            <span class="mb-0">Description :</span><strong>{{ partner.description }}</strong>
+                                        </li>
+                                        <li class="list-group-item px-0 d-flex justify-content-between">
+                                            <span class="mb-0">Email:</span><strong>{{ partner.email }}</strong>
+                                        </li>
+                                        <li class="list-group-item px-0 d-flex justify-content-between">
+                                            <span class="mb-0">Phone No. :</span><strong>{{ partner.tel }}</strong>
+                                        </li>
+                                    </ul>
+                                    <!-- Read more button -->
+                                    <a class="btn btn-outline-primary btn-rounded mt-3 px-4" href="">Read More</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
