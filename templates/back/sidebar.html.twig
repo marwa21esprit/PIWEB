@@ -2,18 +2,31 @@
             <div class="dlabnav-scroll">
                 <ul class="metismenu" id="menu">
                     <li class="nav-label first">Main Menu</li>
-                    <li><a class="has-arrow" href="{{ path('app_index_admin') }}" aria-expanded="false">
+                   <li><a class="ai-icon" href="{{ path('Dashboard') }}" aria-expanded="false">
 							<i class="la la-home"></i>
-                                <span class="nav-text">Dashboard</span>
+							<span class="nav-text">Dashboard</span>
 						</a>
+					<li><a class="ai-icon" href="" aria-expanded="false">
+							<i class="la la-calendar"></i>
+							<span class="nav-text">Reservations</span>
+						</a>
+                        <ul aria-expanded="false">
+                            <li><a href="{{ path('back') }}">All Reservations</a></li>
+                            <li><a href="{{ path('app_remises') }}">All Discounts</a></li>
+                        </ul>                       
                     </li>
-
-                    <li>
-                        <a class="has-arrow" href="{{ path('app_users_index_admin') }}" aria-expanded="false">
-                            <i class="la la-user"></i>
-                            <span class="nav-text">Users</span>
-                        </a>
+					<li><a class="has-arrow" href="javascript:void()" aria-expanded="false">
+							<i class="la la-user"></i>
+							<span class="nav-text">Professors</span>
+						</a>
+                        <ul aria-expanded="false">
+                            <li><a href="all-professors.html">All Professor</a></li>
+                            <li><a href="add-professor.html">Add Professor</a></li>
+                            <li><a href="edit-professor.html">Edit Professor</a></li>
+                            <li><a href="professor-profile.html">Professor Profile</a></li>
+                        </ul>
                     </li>
-                </ul>
+					
+				</ul>
+            </div>
         </div>
-    </div>
