@@ -103,7 +103,7 @@ class PartnerController extends AbstractController
         $partner= $partnerRepository->find($id);
         $form=$this->createForm(PartnerType::class,$partner);
         $form->handleRequest($request);
-        if($form->isSubmitted() && $form->isValid()){
+        if($form->isSubmitted()){
             $file = $form->get('image')->getData();
             if($file)
             {

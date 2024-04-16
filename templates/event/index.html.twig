@@ -1,16 +1,15 @@
-{% extends '/front/gestion.html.twig' %}
+{% extends 'base-front.html.twig' %}
+
+{% block title %}Evenements Index{% endblock %}
 
 {% block body %}
-
+    <!-- Team Start -->
     <div class="container-xxl py-5">
         <div class="container">
             <div class="text-center wow fadeInUp" data-wow-delay="0.1s">
                 <h6 class="section-title bg-white text-center text-primary px-3">Evenements</h6>
                 <h1 class="mb-5">Nos Evenements</h1>
             </div>
-            {% for message in app.flashes('success') %}
-                <div class="alert alert-success" role="alert">{{ message }}</div>
-            {% endfor %}
             <div class="row g-4">
                 {% for event in events %}
                     <div class="col-lg-3 col-md-6 wow fadeInUp" data-wow-delay="0.1s">
@@ -44,8 +43,6 @@
                                     </tr>
                                     </tbody>
                                 </table>
-                                <a href="{{ path('app_reservation_add', {'eventId': event.idEvent}) }}" class="btn btn-primary btn-lg">Book</a>
-
                             </div>
                         </div>
                     </div>

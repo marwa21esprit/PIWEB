@@ -41,43 +41,42 @@
                             <div class="form-group">
                                 {{ form_label (formPartner.namepartner, 'Partner\'s Name', {'label_attr': {'class': 'form-label'}})}}
                                 {{ form_widget (formPartner.namepartner, {'attr': {'class': 'form-control'}})}}
-                                {{ form_errors(formPartner.namepartner) }}
-
+                                <div class="error-message">{{ form_errors(formPartner.namepartner) }}</div>
                             </div>
                         </div>
                         <div class="col-lg-6 col-md-6 col-sm-12">
                             <div class="form-group">
                                 {{ form_label (formPartner.typepartner, 'Partner\'s Type', {'label_attr': {'class': 'form-label'}})}}
                                 {{ form_widget (formPartner.typepartner, {'attr': {'class': 'form-control'}})}}
-                                {{ form_errors(formPartner.typepartner) }}
+                                <div class="error-message">{{ form_errors(formPartner.typepartner) }}</div>
                             </div>
                         </div>
                         <div class="col-lg-6 col-md-6 col-sm-12">
                             <div class="form-group">
                                 {{ form_label (formPartner.email, 'Partner\'s Email', {'label_attr': {'class': 'form-label'}})}}
                                 {{ form_widget (formPartner.email, {'attr': {'class': 'form-control'}})}}
-                                {{ form_errors(formPartner.email) }}
+                                <div class="error-message">{{ form_errors(formPartner.email) }}</div>
                             </div>
                         </div>
                         <div class="col-lg-6 col-md-6 col-sm-12">
                             <div class="form-group">
                                 {{ form_label (formPartner.tel, 'Partner\'s Phone N°', {'label_attr': {'class': 'form-label'}})}}
                                 {{ form_widget (formPartner.tel, {'attr': {'class': 'form-control'}})}}
-                                {{ form_errors(formPartner.tel) }}
+                                <div class="error-message">{{ form_errors(formPartner.tel) }}</div>
                             </div>
                         </div>
                         <div class="col-lg-6 col-md-6 col-sm-12">
                             <div class="form-group">
                                 {{ form_label (formPartner.description, 'Description', {'label_attr': {'class': 'form-label'}})}}
                                 {{ form_widget (formPartner.description, {'attr': {'class': 'form-control', 'rows': 5}})}}
-                                {{ form_errors(formPartner.description) }}
+                                <div class="error-message">{{ form_errors(formPartner.description) }}</div>
                             </div>
                         </div>
                         <div class="col-lg-12 col-md-12 col-sm-12">
                             <div class="form-group fallback w-100">
                                 {{ form_label (formPartner.image, 'Image', {'label_attr': {'class': 'form-label'}})}}
                                 {{ form_widget (formPartner.image, {'attr': {'class': 'dropify', 'data-default-file': ''}})}}
-                                {{ form_errors(formPartner.image) }}
+                                <div class="error-message">{{ form_errors(formPartner.image) }}</div>
                             </div>
                         </div>
                         <div class="col-lg-12 col-md-12 col-sm-12">
