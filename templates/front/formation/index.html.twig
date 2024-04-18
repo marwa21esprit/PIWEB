@@ -1,0 +1,48 @@
+{% extends '/front/gestion.html.twig' %}
+
+{% block title %}Course Details{% endblock %}
+
+{% block body %}
+    <h1>Course Details</h1>
+
+    <div class="text-center mt-4">
+        <a href="{{ path('app_formation_new_front') }}" class="btn btn-primary">Add New Course</a>
+    </div>
+
+    {% for formationn in formationns %}
+        <dl class="row">
+            <dt class="col-sm-3">Level</dt>
+            <dd class="col-sm-9">{{ formationn.getNomNiveau() }}</dd>
+
+            <dt class="col-sm-3">Category</dt>
+            <dd class="col-sm-9">{{ formationn.getCategorie() }}</dd>
+
+            <dt class="col-sm-3">Title</dt>
+            <dd class="col-sm-9">{{ formationn.getTitre() }}</dd>
+
+            <dt class="col-sm-3">Description</dt>
+            <dd class="col-sm-9">{{ formationn.getDescription() }}</dd>
+
+            <dt class="col-sm-3">Debut Date:</dt>
+            <dd class="col-sm-9">{{ formationn.getDateD() ? formationn.getDateD()|date('Y-m-d') : '' }}</dd>
+
+            <dt class="col-sm-3">Last Date:</dt>
+            <dd class="col-sm-9">{{ formationn.getDateF() ? formationn.getDateF()|date('Y-m-d') : '' }}</dd>
+
+            <dt class="col-sm-3">Link</dt>
+            <dd class="col-sm-9">{{ formationn.getLien() }}</dd>
+        </dl>
+        <div class="text-center">
+            <a href="{{ path('app_formation_edit_front', {'id_formation': formationn.id_formation}) }}" class="btn btn-sm btn-info" title="Modifier">
+                <i class="la la-pencil"></i>
+            </a>
+
+            <form action="{{ path('app_formation_delete', {'id_formation': formationn.id_formation}) }}" method="post" class="d-inline">
+                <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ formationn.id_formation) }}">
+                <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Êtes-vous sûr de vouloir supprimer cette formation ?')" title="Supprimer">
+                    <i class="la la-trash"></i>
+                </button>
+            </form>
+        </div>
+    {% endfor %}
+{% endblock %}

@@ -1,0 +1,22 @@
+{% extends '/front/gestion.html.twig' %}
+
+{% block body %}
+    <div class="container-xxl py-5">
+        <h2 class="fw-medium">Add Course</h2>
+        <form method="post">
+            {{ form_start(form) }}
+            <div class="mb-3">
+                {{ form_row(form.nom_niveau, { 'label': 'Level', 'attr': {'class': 'form-control'} }) }}
+                {{ form_row(form.categorie, { 'label': 'Category', 'attr': {'class': 'form-control'} }) }}
+                {{ form_row(form.titre, { 'label': 'Title', 'attr': {'class': 'form-control'} }) }}
+                {{ form_row(form.description, { 'label': 'Description', 'attr': {'class': 'form-control'} }) }}
+                {{ form_row(form.date_d, { 'label': 'Debut Date', 'attr': {'class': 'form-control'} }) }}
+                {{ form_row(form.date_f, { 'label': 'Last Date', 'attr': {'class': 'form-control'} }) }}
+                {{ form_row(form.lien, { 'label': 'Link', 'attr': {'class': 'form-control'} }) }}
+            </div>
+            <button type="submit" class="btn btn-primary btn-lg">Add</button>
+            <a href="{{ path('app_formation_index') }}" class="btn btn-secondary">Back to List</a>
+            {{ form_end(form) }}
+        </form>
+    </div>
+{% endblock %}

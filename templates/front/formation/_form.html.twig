@@ -1,0 +1,25 @@
+{% block title %}New Course{% endblock %}
+
+{% block body %}
+    {{ form_start(form) }}
+
+    {{ form_row(form.nom_niveau, { 'label': 'Level', 'attr': {'class': 'form-control'} }) }}
+    {{ form_row(form.categorie, { 'label': 'Category', 'attr': {'class': 'form-control'} }) }}
+    {{ form_row(form.titre, { 'label': 'Title', 'attr': {'class': 'form-control'} }) }}
+    {{ form_row(form.description, { 'label': 'Description', 'attr': {'class': 'form-control'} }) }}
+    {{ form_row(form.date_d, { 'label': 'Debut Date', 'attr': {'class': 'form-control'} }) }}
+    {{ form_row(form.date_f, { 'label': 'Last Date', 'attr': {'class': 'form-control'} }) }}
+    {{ form_row(form.lien, { 'label': 'Link', 'attr': {'class': 'form-control'} }) }}
+
+    <button type="submit" class="btn btn-primary">Add</button>
+    
+    <a href="{{ path('app_formation_index') }}" class="btn btn-secondary">Back to List</a>
+
+    {{ form_end(form) }}
+
+    {% if form.vars.errors|length > 0 %}
+        <div class="alert alert-danger">
+            {{ form_errors(form) }}
+        </div>
+    {% endif %}
+{% endblock %}
