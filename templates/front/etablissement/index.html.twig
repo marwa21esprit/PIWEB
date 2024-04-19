@@ -1,0 +1,73 @@
+{% extends 'base-front.html.twig' %}
+
+{% block title %}Etablissement Index{% endblock %}
+
+{% block body %}
+    <!-- Team Start -->
+    <div class="container-xxl py-5">
+        <div class="container">
+            {% for message in app.flashes('success') %}
+                <div class="alert alert-success" role="alert">
+                    {{ message }}
+                </div>
+            {% endfor %}
+            {% for message in app.flashes('error') %}
+                <div class="alert alert-danger" role="alert">
+                    {{ message }}
+                </div>
+            {% endfor %}
+            <div class="text-center wow fadeInUp" data-wow-delay="0.1s">
+                <h6 class="section-title bg-white text-center text-primary px-3">Schools</h6>
+                <h1 class="mb-5">Expert Schools</h1>
+            </div>
+            <div class="row g-4">
+                {% for etablissement in etablissements %}
+                    <div class="col-lg-3 col-md-6 wow fadeInUp" data-wow-delay="0.1s">
+                        <div class="team-item bg-light">
+                            <div class="overflow-hidden">
+                                <img class="img-fluid" src="{{ asset('uploads/images/' ~ etablissement.imgEtablissement) }}" alt="">
+                            </div>
+                            <div class="text-center p-4">
+                                <h4 class="mb-0">{{ etablissement.nomEtablissement }}</h4>
+                                <table class="table">
+                                    <tbody>
+                                    <tr>
+                                        <th>Address</th>
+                                        <td>{{ etablissement.adresseEtablissement }}</td>
+                                    </tr>
+                                    <tr>
+                                        <th>Type</th>
+                                        <td>{{ etablissement.typeEtablissement }}</td>
+                                    </tr>
+                                    <tr>
+                                        <th>Contact</th>
+                                        <td>{{ etablissement.telEtablissement }}</td>
+                                    </tr>
+                                    <tr>
+                                        <th>Director</th>
+                                        <td>{{ etablissement.directeurEtablissement }}</td>
+                                    </tr>
+                                    <tr>
+                                        <th>Foundation date</th>
+                                        <td>{{ etablissement.dateFondation ? etablissement.dateFondation|date('Y-m-d') : '' }}</td>
+                                    </tr>
+                                    </tbody>
+                                </table>
+                                <div class="d-flex justify-content-center align-items-center">
+                                    <div class="d-flex align-items-center">
+                                        <span class="me-2">{{ etablissement.likes }}</span>
+                                        <a class="btn btn-sm btn-success me-2 like-button" href="{{ path('like', {'id': etablissement.IdEtablissement}) }}"><i class="fas fa-thumbs-up"></i></a>
+                                        <span class="me-2">{{ etablissement.dislikes }}</span>
+                                        <a class="btn btn-sm btn-danger me-2 dislike-button" href="{{ path('dislike', {'id': etablissement.IdEtablissement}) }}"><i class="fas fa-thumbs-down"></i></a>
+                                    </div>
+                                </div>
+                                <a href="{{ path('show_certificats_by_etablissement', {'id': etablissement.IdEtablissement}) }}" class="btn btn-primary mt-3">Show Certificates</a>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+{% endblock %}

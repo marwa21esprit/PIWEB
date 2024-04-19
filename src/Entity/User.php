@@ -3,15 +3,16 @@
 namespace App\Entity;
 
 use App\Repository\UserRepository;
+use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[ORM\Table(name: '`user`')]
-#[UniqueEntity(fields: ['email'], message: 'There is already an account with this email')]
 class User implements UserInterface, PasswordAuthenticatedUserInterface
 {
     #[ORM\Id]
@@ -19,75 +20,81 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column]
     private ?int $id ;
 
-    #[Assert\NotBlank(message: 'Le nom ne peut pas être vide')]
-    #[Assert\Length(
-        min: 2,
-        max: 255,
-        minMessage: 'Le nom doit contenir au moins {{ limit }} caractères',
-        maxMessage: 'Le nom ne peut pas dépasser {{ limit }} caractères'
-    )]
     #[ORM\Column(length: 255)]
-    private ?string $name ;
+    private ?string $name = null;
 
-    #[Assert\NotBlank(message: 'L\'adresse e-mail ne peut pas être vide')]
-    #[Assert\Email(message: 'L\'adresse e-mail "{{ value }}" n\'est pas valide')]
     #[ORM\Column(length: 180, unique: true)]
-    private ?string $email ;
+    private ?string $email = null;
 
-    #[Assert\NotBlank(message: 'L\'adresse ne peut pas être vide')]
-    #[Assert\Length(
-        min: 5,
-        max: 255,
-        minMessage: 'L\'adresse doit contenir au moins {{ limit }} caractères',
-        maxMessage: 'L\'adresse ne peut pas dépasser {{ limit }} caractères'
-    )]
     #[ORM\Column(length: 255)]
-    private ?string $address ;
+    private ?string $address = null ;
 
     #[ORM\Column]
     private array $roles = [];
 
-    /**
-     * @var string The hashed password
-     *
-     * #[Assert\Regex(
-     *     pattern: "/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).+$/",
-     *     message: "Le mot de passe doit contenir au moins une lettre minuscule, une lettre majuscule et un chiffre."
-     * )]
-     * #[Assert\Length(
-     *     min: 8,
-     *     minMessage: "Le mot de passe doit contenir au moins {{ limit }} caractères."
-     * )]
-     */
+    #[ORM\Column(length: 255)]
+    private ?string $image = null;
+
+    #[ORM\Column(type: 'datetime')]
+    private ?\DateTimeInterface $lastlogin = null;
+
     #[ORM\Column]
     private ?string $password ;
 
-
-    #[Assert\NotBlank(message: 'La question ne peut pas être vide')]
-    #[Assert\Length(
-        min: 5,
-        max: 255,
-    )]
     #[ORM\Column(length: 255)]
     private ?string $question ;
 
-    #[Assert\NotBlank(message: 'La réponse ne peut pas être vide')]
-    #[Assert\Length(
-        min: 2,
-        max: 255,
-        minMessage: 'La réponse doit contenir au moins {{ limit }} caractères',
-        maxMessage: 'La réponse ne peut pas dépasser {{ limit }} caractères'
-    )]
     #[ORM\Column(length: 255)]
     private ?string $answer ;
 
-    #[Assert\NotBlank(message: 'Le statut ne peut pas être vide')]
-    #[Assert\Choice(choices: ['active', 'inactive'], message: 'Le statut doit être "active" ou "inactive"')]
     #[ORM\Column(length: 255)]
     private ?string $status = 'active'; // Valeur par défaut "active"
 
     #[ORM\Column(name: "reset_code", nullable: true)]
     private ?string $resetCode = null;
+
+    #[ORM\OneToMany(mappedBy: "user", targetEntity: UserEtablissement::class)]
+    private $userEtablissements;
+
+
+    public function __construct()
+    {
+        $this->question = '';
+        $this->answer = '';
+        $this->userEtablissements = new ArrayCollection();
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getImage(): ?string
+    {
+        return $this->image;
+    }
+
+    /**
+     * @param string|null $image
+     */
+    public function setImage(?string $image): void
+    {
+        $this->image = $image;
+    }
+
+    /**
+     * @return \DateTimeInterface|null
+     */
+    public function getLastlogin(): ?\DateTimeInterface
+    {
+        return $this->lastlogin;
+    }
+
+    /**
+     * @param \DateTimeInterface|null $lastlogin
+     */
+    public function setLastlogin(?\DateTimeInterface $lastlogin): void
+    {
+        $this->lastlogin = $lastlogin;
+    }
 
     /**
      */
@@ -242,7 +249,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this->question;
     }
 
-    public function setQuestion(string $question): static
+    public function setQuestion(?string $question): static
     {
         $this->question = $question;
 
@@ -254,7 +261,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this->answer;
     }
 
-    public function setAnswer(string $answer): static
+    public function setAnswer(?string $answer): static
     {
         $this->answer = $answer;
 

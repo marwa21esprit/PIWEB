@@ -67,12 +67,17 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
     {
         $em = $this->getEntityManager();
         $query = $em->createQuery(
-            'UPDATE App\Entity\User u SET u.name = :name, u.email = :email, u.status = :status WHERE u.id = :id'
+            'UPDATE App\Entity\User u SET u.name = :name, u.email = :email, u.image = :image, u.address = :address , u.question = :question, u.answer = :answer, u.status = :status WHERE u.id = :id'
         );
         $query->setParameter('id', $user->getId());
         $query->setParameter('name',  $user->getName());
         $query->setParameter('email',  $user->getEmail());
+        $query->setParameter('image',  $user->getImage());
+        $query->setParameter('address',  $user->getAddress());
+        $query->setParameter('question',  $user->getQuestion());
+        $query->setParameter('answer',  $user->getAnswer());
         $query->setParameter('status',  $user->getStatus());
+
         return $query->getResult();
     }
     public function updateUserPassword(?User $user, bool $true)

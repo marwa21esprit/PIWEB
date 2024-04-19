@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Repository\UserRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -14,9 +15,18 @@ class Home extends AbstractController
         return $this->render('front/home.html.twig');
     }
     #[Route('/admin', name: 'app_index_admin')]
-    public function indexAdmin(): Response
+    public function indexAdmin(UserRepository $userRepository): Response
     {
-        return $this->render('back/home.html.twig');
+        $usersConnected = $userRepository->createQueryBuilder('u')
+            ->where('u.lastlogin IS NOT NULL')
+            ->orderBy('u.lastlogin', 'DESC')
+            ->getQuery()
+            ->getResult();
+
+        return $this->render('back/home.html.twig',[
+            'usersConnected'=>$usersConnected,
+        ]);
     }
-    
+
+
 }
