@@ -5,3 +5,12 @@ index:
 ajax_validation:
     path: /validate
     controller: App\Controller\ValidationController::validate
+
+generate_pdf:
+    path: '/reservation/{id}/pdf'
+    controller: 'App\Controller\ReservationController::generatePdf'
+
+app_reservation_delete:
+    path: /reservation/delete/{id}
+    controller: App\Controller\ReservationController::deleteReservation
+    methods: ['POST', 'DELETE']

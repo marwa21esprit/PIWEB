@@ -25,7 +25,7 @@ class ReservationRepository extends ServiceEntityRepository
     public function findBySearchQuery(string $query): array
     {
         return $this->createQueryBuilder('r')
-            ->andWhere('r.name LIKE :query')
+            ->andWhere('r.namee LIKE :query')
             ->setParameter('query', $query . '%')
             ->getQuery()
             ->getResult();
