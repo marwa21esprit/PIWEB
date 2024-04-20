@@ -6,6 +6,7 @@ use App\Entity\Certificat;
 use App\Entity\Etablissement;
 use App\Form\EtablissementType;
 use App\Repository\EtablissementRepository;
+use App\Repository\UserEtablissementRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
@@ -18,6 +19,68 @@ class EtablissementController extends AbstractController
 {
 
     #[Route('/', name: 'app_etablissement_index')]
+
+    public function showEtablissement(
+        EtablissementRepository $etablissementRepository,
+        UserEtablissementRepository $userEtablissementRepository
+    ): Response {
+        $etablissements = $etablissementRepository->findAll();
+
+        foreach ($etablissements as $etablissement) {
+            $userEtablissements = $userEtablissementRepository->findBy(['etablissement' => $etablissement]);
+
+            $likes = 0;
+            $dislikes = 0;
+
+            foreach ($userEtablissements as $userEtablissement) {
+                if ($userEtablissement->getLiked()) {
+                    $likes++;
+                }
+                if ($userEtablissement->getDisliked()) {
+                    $dislikes++;
+                }
+            }
+
+            $etablissement->setLikes($likes);
+            $etablissement->setDislikes($dislikes);
+        }
+
+        return $this->render('front/etablissement/index.html.twig', [
+            'etablissements' => $etablissements,
+        ]);
+    }
+
+
+    #[Route('/admin', name: 'app_etablissement_index_admin')]
+    public function showEtablissementAdmin(EtablissementRepository $etablissementRepository, UserEtablissementRepository $userEtablissementRepository): Response
+    {
+        $etablissements = $etablissementRepository->findAll();
+
+        foreach ($etablissements as $etablissement) {
+            $userEtablissements = $userEtablissementRepository->findBy(['etablissement' => $etablissement]);
+
+            $likes = 0;
+            $dislikes = 0;
+
+            foreach ($userEtablissements as $userEtablissement) {
+                if ($userEtablissement->getLiked()) {
+                    $likes++;
+                }
+                if ($userEtablissement->getDisliked()) {
+                    $dislikes++;
+                }
+            }
+
+            $etablissement->setLikes($likes);
+            $etablissement->setDislikes($dislikes);
+        }
+
+        return $this->render('back/etablissement/index.html.twig', [
+            'etablissements' => $etablissements, // Correction ici
+        ]);
+    }
+
+
     public function showEtablissement(EtablissementRepository $aR): Response
     {
         $etablissBD=$aR->findAll();

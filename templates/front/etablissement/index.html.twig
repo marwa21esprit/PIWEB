@@ -6,6 +6,17 @@
     <!-- Team Start -->
     <div class="container-xxl py-5">
         <div class="container">
+            {% for message in app.flashes('success') %}
+                <div class="alert alert-success" role="alert">
+                    {{ message }}
+                </div>
+            {% endfor %}
+            {% for message in app.flashes('error') %}
+                <div class="alert alert-danger" role="alert">
+                    {{ message }}
+                </div>
+            {% endfor %}
+
             <div class="text-center wow fadeInUp" data-wow-delay="0.1s">
                 <h6 class="section-title bg-white text-center text-primary px-3">Schools</h6>
                 <h1 class="mb-5">Expert Schools</h1>
@@ -43,6 +54,15 @@
                                     </tr>
                                     </tbody>
                                 </table>
+                                <div class="d-flex justify-content-center align-items-center">
+                                    <div class="d-flex align-items-center">
+                                        <span class="me-2">{{ etablissement.likes }}</span>
+                                        <a class="btn btn-sm btn-success me-2 like-button" href="{{ path('like', {'id': etablissement.IdEtablissement}) }}"><i class="fas fa-thumbs-up"></i></a>
+                                        <span class="me-2">{{ etablissement.dislikes }}</span>
+                                        <a class="btn btn-sm btn-danger me-2 dislike-button" href="{{ path('dislike', {'id': etablissement.IdEtablissement}) }}"><i class="fas fa-thumbs-down"></i></a>
+                                    </div>
+                                </div>
+                                <a href="{{ path('show_certificats_by_etablissement', {'id': etablissement.IdEtablissement}) }}" class="btn btn-primary mt-3">Show Certificates</a>
                                 <a href="{{ path('show_certificats_by_etablissement', {'id': etablissement.IdEtablissement}) }}" class="btn btn-primary">Our Certificates</a>
                             </div>
                         </div>
@@ -51,4 +71,5 @@
             </div>
         </div>
     </div>
+
 {% endblock %}

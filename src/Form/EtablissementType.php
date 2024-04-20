@@ -17,6 +17,11 @@ class EtablissementType extends AbstractType
     {
         $builder
             ->add('imgEtablissement',FileType::class, [
+                'label'=>false,
+                'mapped'=>false,
+                'required'=>false
+            ])
+            ->add('nomEtablissement')
             'label'=>false,
             'mapped'=>false,
             'required'=>false
@@ -54,6 +59,7 @@ class EtablissementType extends AbstractType
                     new Assert\Length([
                         'min' => 8,
                         'max' => 8,
+                        'exactMessage' => 'Le numéro de téléphone doit contenir exactement {{ limit }} chiffres.',
                         'exactMessage' => 'The phone number must contain exactly {{ limit }} digits.',
                     ]),
                 ],
@@ -67,6 +73,15 @@ class EtablissementType extends AbstractType
                     'month' => 'MM',
                     'day' => 'DD',
                 ],
+                'empty_data' => function ($form) {
+                    $entity = $form->getData();
+                    if ($entity && $entity->getDateObtentionCertificat() !== null) {
+                        return $entity->getDateObtentionCertificat()->format('Y-m-d');
+                    } else {
+                        return date('Y-m-d');
+                    }
+                },
+=======
                 'data' => new \DateTime(),
             ])
 

@@ -4,7 +4,11 @@
 
 {% block body %}
     <div class="container">
+
+        <h1 class="text-center mt-5 mb-4">Certificats pour {{ etablissement.nomEtablissement }}</h1>
+
         <h1 class="text-center mt-5 mb-4">Certificates for {{ etablissement.nomEtablissement }}</h1>
+
         <div class="row justify-content-center">
             <div class="col-lg-8">
                 {% if certificats is not empty %}
@@ -12,15 +16,25 @@
                         {% for certificat in certificats %}
                             <div class="list-group-item">
                                 <h4 class="mb-2">{{ certificat.nomCertificat }}</h4>
+
+                                <p><strong>Domaine:</strong> {{ certificat.domaineCertificat }}</p>
+                                <p><strong>Niveau:</strong> {{ certificat.niveau }}</p>
+                                <p><strong>Date d'obtention:</strong> {{ certificat.dateObtentionCertificat|date('Y-m-d') }}</p>
+
                                 <p><strong>Domain:</strong> {{ certificat.domaineCertificat }}</p>
                                 <p><strong>Level:</strong> {{ certificat.niveau }}</p>
                                 <p><strong>Delivration Date:</strong> {{ certificat.dateObtentionCertificat|date('Y-m-d') }}</p>
+
                                 <!-- Add additional certificat details as needed -->
                             </div>
                         {% endfor %}
                     </div>
                 {% else %}
                     <div class="alert alert-warning" role="alert">
+                        Aucun certificat trouvé pour cet établissement.
+                    </div>
+                {% endif %}
+                <a href="{{ path('app_etablissement_index') }}" class="btn btn-primary mt-3">Retourner</a>
                         No certificate found for this school.
                     </div>
                 {% endif %}

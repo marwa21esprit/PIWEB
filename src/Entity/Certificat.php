@@ -29,7 +29,13 @@ class Certificat
     private ?string $niveau;
 
     #[ORM\Column(type: "datetime")]
+
+    #[Assert\NotBlank(message: "La date de l'événement ne doit pas être vide.")]
+    #[Assert\GreaterThan("today", message: "La date de l'événement doit être ultérieure à la date actuelle.")]
+    #[Assert\Type(type: "\DateTimeInterface", message: "La date de l'événement doit être de type date.")]
+
     #[Assert\LessThan("today", message: "The date of delivration the certificate must be less than today")]
+
     private ?DateTime $dateObtentionCertificat;
 
 

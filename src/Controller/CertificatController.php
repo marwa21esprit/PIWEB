@@ -18,6 +18,7 @@ class CertificatController extends AbstractController
     #[Route('/etablissement/{id}', name: 'show_certificats_by_etablissement')]
     public function showCertificatsByEtablissement(int $id): Response
     {
+
         $entityManager = $this->getDoctrine()->getManager();
         $etablissement = $entityManager->getRepository(Etablissement::class)->find($id);
 
