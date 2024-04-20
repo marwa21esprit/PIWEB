@@ -2,9 +2,8 @@
 <html lang="en">
 
 <head>
-	    {% include 'back/head.html.twig' %}
 
-
+    {% include 'back/header.html.twig' %}
 </head>
 
 <body>
@@ -33,7 +32,7 @@
         ***********************************-->
         <div class="nav-header">
             <a href="index.html" class="brand-logo">
-                <img class="logo-abbr" src="images/logo.png" alt="" length="40">
+                <img class="logo-abbr" src="{{ asset ('back/images/logo.png')}}" alt="" length="40">
             </a>
 
             <div class="nav-control">
@@ -49,8 +48,110 @@
         <!--**********************************
             Header start
         ***********************************-->
-                        						{% include 'back/header.html.twig' %}
+        <div class="header">
+            <div class="header-content">
+                <nav class="navbar navbar-expand">
+                    <div class="collapse navbar-collapse justify-content-between">
+                        <div class="header-left">
+                            <div class="search_bar dropdown">
+                                <span class="search_icon p-3 c-pointer" data-toggle="dropdown">
+                                    <i class="mdi mdi-magnify"></i>
+                                </span>
+                                <div class="dropdown-menu p-0 m-0">
+                                    <form>
+                                        <input class="form-control" type="search" placeholder="Search" aria-label="Search">
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
 
+                        <ul class="navbar-nav header-right">
+                            <li class="nav-item dropdown notification_dropdown">
+                                <a class="nav-link bell ai-icon" href="#" role="button" data-toggle="dropdown">
+                                    <svg id="icon-user" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-bell">
+										<path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+										<path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+									</svg>
+                                    <div class="pulse-css"></div>
+                                </a>
+                                <div class="dropdown-menu dropdown-menu-right">
+                                    <ul class="list-unstyled">
+                                        <li class="media dropdown-item">
+                                            <span class="success"><i class="ti-user"></i></span>
+                                            <div class="media-body">
+                                                <a href="#">
+                                                    <p><strong>Martin</strong> has added a <strong>customer</strong> Successfully
+                                                    </p>
+                                                </a>
+                                            </div>
+                                            <span class="notify-time">3:20 am</span>
+                                        </li>
+                                        <li class="media dropdown-item">
+                                            <span class="primary"><i class="ti-shopping-cart"></i></span>
+                                            <div class="media-body">
+                                                <a href="#">
+                                                    <p><strong>Jennifer</strong> purchased Light Dashboard 2.0.</p>
+                                                </a>
+                                            </div>
+                                            <span class="notify-time">3:20 am</span>
+                                        </li>
+                                        <li class="media dropdown-item">
+                                            <span class="danger"><i class="ti-bookmark"></i></span>
+                                            <div class="media-body">
+                                                <a href="#">
+                                                    <p><strong>Robin</strong> marked a <strong>ticket</strong> as unsolved.
+                                                    </p>
+                                                </a>
+                                            </div>
+                                            <span class="notify-time">3:20 am</span>
+                                        </li>
+                                        <li class="media dropdown-item">
+                                            <span class="primary"><i class="ti-heart"></i></span>
+                                            <div class="media-body">
+                                                <a href="#">
+                                                    <p><strong>David</strong> purchased Light Dashboard 1.0.</p>
+                                                </a>
+                                            </div>
+                                            <span class="notify-time">3:20 am</span>
+                                        </li>
+                                        <li class="media dropdown-item">
+                                            <span class="success"><i class="ti-image"></i></span>
+                                            <div class="media-body">
+                                                <a href="#">
+                                                    <p><strong> James.</strong> has added a<strong>customer</strong> Successfully
+                                                    </p>
+                                                </a>
+                                            </div>
+                                            <span class="notify-time">3:20 am</span>
+                                        </li>
+                                    </ul>
+                                    <a class="all-notification" href="#">See all notifications <i class="ti-arrow-right"></i></a>
+                                </div>
+                            </li>
+                            <li class="nav-item dropdown header-profile">
+                                <a class="nav-link" href="#" role="button" data-toggle="dropdown">
+                                    <img src="images/profile/education/pic1.jpg" width="20" alt="">
+                                </a>
+                                <div class="dropdown-menu dropdown-menu-right">
+                                    <a href="app-profile.html" class="dropdown-item ai-icon">
+                                        <svg id="icon-user1" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-user"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                                        <span class="ml-2">Profile </span>
+                                    </a>
+                                    <a href="email-inbox.html" class="dropdown-item ai-icon">
+                                        <svg id="icon-inbox" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-mail"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
+                                        <span class="ml-2">Inbox </span>
+                                    </a>
+                                    <a href="page-login.html" class="dropdown-item ai-icon">
+                                        <svg id="icon-logout" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-log-out"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+                                        <span class="ml-2">Logout </span>
+                                    </a>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                </nav>
+            </div>
+        </div>
         <!--**********************************
             Header end ti-comment-alt
         ***********************************-->
@@ -80,30 +181,12 @@
 										<i class="la la-users"></i>
 									</span>
 									<div class="media-body text-white">
-										<p class="mb-1">Total Reservations</p>
-										<h3 class="text-white">{{ totalReservations }}</h3>
+										<p class="mb-1">Total Students</p>
+										<h3 class="text-white">3280</h3>
 										<div class="progress mb-2 bg-white">
                                             <div class="progress-bar progress-animated bg-light" style="width: 80%"></div>
                                         </div>
 										<small>80% Increase in 20 Days</small>
-									</div>
-								</div>
-							</div>
-						</div>
-                    </div>
-                    <div class="col-xl-3 col-xxl-3 col-sm-6">
-						<div class="widget-stat card bg-danger">
-							<div class="card-body">
-								<div class="media">
-									<span class="mr-3">
-										<i class="la la-dollar"></i>
-									</span>
-									<div class="media-body text-white">
-										<p class="mb-1">Fees </p>
-										<h3 class="text-white">{{ totalAmount }}$</h3>
-										<div class="progress mb-2 bg-white">
-                                            <div class="progress-bar progress-animated bg-light" style="width: 30%"></div>
-                                        </div>
 									</div>
 								</div>
 							</div>
@@ -147,20 +230,35 @@
 							</div>
 						</div>
                     </div>
-					
-                    
-
+					<div class="col-xl-3 col-xxl-3 col-sm-6">
+						<div class="widget-stat card bg-danger">
+							<div class="card-body">
+								<div class="media">
+									<span class="mr-3">
+										<i class="la la-dollar"></i>
+									</span>
+									<div class="media-body text-white">
+										<p class="mb-1">Fees Collection</p>
+										<h3 class="text-white">25160$</h3>
+										<div class="progress mb-2 bg-white">
+                                            <div class="progress-bar progress-animated bg-light" style="width: 30%"></div>
+                                        </div>
+										<small>30% Increase in 30 Days</small>
+									</div>
+								</div>
+							</div>
+						</div>
+                    </div>
 					<div class="col-xl-6 col-xxl-6 col-lg-12 col-sm-12">
 						<div class="card">
 							<div class="card-header">
-								<h3 class="card-title">Most Reserved Event</h3>
+								<h3 class="card-title">University Survey</h3>
 							</div>
 							<div class="card-body">
 								<div id="morris_bar_stalked" class="morris_chart_height" style="height: 300px !important;"></div>
 							</div>
 						</div>
 					</div>
-                    
 					<div class="col-xl-3 col-xxl-3 col-sm-6">
 						<div class="card">
 							<div class="card-header">
@@ -258,7 +356,45 @@
 						</div>
 					</div>
 					
-
+					<div class="col-xl-6 col-xxl-6 col-lg-6 col-md-12 col-sm-12">
+						<div class="card">
+                            <div class="card-body">
+								<form action="#" method="post">
+									<div class="form-group">
+										<div class="input-group">
+											<div class="input-group-prepend">
+												<span class="input-group-text">To</span>
+											</div>
+											<input type="text" class="form-control">
+										</div>
+									</div>
+									<div class="form-group">
+										<div class="input-group">
+											<div class="input-group-prepend">
+												<span class="input-group-text">Subject</span>
+											</div>
+											<input type="text" class="form-control">
+										</div>
+									</div>
+									<div class="form-group">
+										<div class="summernote"></div>
+									</div>
+									<div class="row align-items-center">
+										<div class="col-lg-6">
+											<div class="fallback w-100">
+												<input type="file" class="dropify" data-default-file="">
+											</div>
+										</div>
+										<div class="col-lg-6">
+											<button type="button" class="btn btn-primary float-right">
+												Send <i class="fa fa-paper-plane-o"></i>
+											</button>									
+										</div>
+									</div>
+								</form>
+							</div>
+						</div>
+					</div>
 					<div class="col-xl-6 col-xxl-6 col-lg-6 col-md-12 col-sm-12">
 						<div class="card">
                             <div class="card-header">
@@ -431,8 +567,11 @@
         <!--**********************************
             Footer start
         ***********************************-->
-       	          						{% include 'back/footer.html.twig' %}
-
+        <div class="footer">
+            <div class="copyright">
+                <p>Copyright © Designed &amp; Developed by <a href="../index.htm" target="_blank">TANIT ONLINE</a> 2024</p>
+            </div>
+        </div>
         <!--**********************************
             Footer end
         ***********************************-->
@@ -483,9 +622,6 @@
     <script src="vendor/svganimation/vivus.min.js"></script>
     <script src="vendor/svganimation/svg.animation.js"></script>
     <script src="js/styleSwitcher.js"></script>
-    <script src="https://d3js.org/d3.v7.min.js"></script>
-    <script src="js/script.js"></script>
-
 		
 </body>
 </html>

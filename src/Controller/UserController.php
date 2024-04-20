@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Entity\User;
 use App\Form\ChangePasswordType;
+use App\Form\UserRecoveryType;
 use App\Form\UserType;
 use App\Form\UserWithoutPasswordType;
 use App\Repository\EtablissementRepository;
@@ -11,6 +12,7 @@ use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\Form\FormError;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -19,7 +21,7 @@ use Symfony\Component\Mime\Email;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Contracts\Translation\TranslatorInterface;
-//
+
 #[Route('/user')]
 class UserController extends AbstractController
 {
@@ -31,7 +33,33 @@ class UserController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            // encode the plain password
+            $existingUser = $entityManager->getRepository(User::class)->findOneBy(['email' => $user->getEmail()]);
+
+            if ($existingUser) {
+                $form->get('email')->addError(new FormError('This email is already registered.'));
+                return $this->render('front/user/register.html.twig', [
+                    'registrationForm' => $form->createView(),
+                ]);
+            }
+
+            $file = $form->get('image')->getData();
+            if($file)
+            {
+                $fileName = md5(uniqid()).'.'.$file->guessExtension();
+                try {
+                    $file->move(
+                        $this->getParameter('images_directory'),
+                        $fileName
+                    );
+                } catch (FileException $e){
+
+                }
+                $user->setImage($fileName);
+            }
+            else
+            {
+                $user->setImage("NoImage.png");
+            }
             $user->setPassword(
                 $userPasswordHasher->hashPassword(
                     $user,
@@ -54,18 +82,34 @@ class UserController extends AbstractController
     #[Route('/MonProfile', name: 'app_myprofile')]
     public function Myprofile(): Response
     {
+
         return $this->render('front/user/profile.html.twig', [
             'user' => $this->getUser(),
         ]);
     }
     #[Route('/modifier-profil', name: 'app_edit_profile')]
-    public function editProfile(Request $request): Response
+    public function editProfile(Request $request,UserRepository $userRepository): Response
     {
         $user = $this->getUser();
         $form = $this->createForm(UserWithoutPasswordType::class, $user);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            $file = $form->get('image')->getData();
+            if ($file) {
+                $fileName = md5(uniqid()) . '.' . $file->guessExtension();
+                try {
+                    $file->move(
+                        $this->getParameter('images_directory'),
+                        $fileName
+                    );
+                } catch (FileException $e) {
+
+                }
+                $user->setImage($fileName);
+            }
+            $userRepository->updateUser($user, true);
+
             $this->getDoctrine()->getManager()->flush();
 
             return $this->redirectToRoute('app_myprofile');
@@ -171,15 +215,33 @@ class UserController extends AbstractController
                 'Email does not exist.'
             );
 
-                return $this->render('front/user/reset_password.html.twig');
+            return $this->redirectToRoute('reset_password');
         }
 
     }
     #[Route('/reset-password', name: 'reset_password')]
-    public function resetPassword()
+    public function resetPassword(Request $request, EntityManagerInterface $entityManager): Response
     {
-        return $this->render('front/user/reset_password.html.twig', []);
+        $form = $this->createForm(UserRecoveryType::class);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $user = $entityManager->getRepository(User::class)->findOneBy(['email' => $form->get('email')->getData()]);
+
+            if ($user && $user->getQuestion() === $form->get('question')->getData() && $user->getAnswer() === $form->get('answer')->getData()) {
+                $resetCode = $this->generateResetCode();
+                $user->setResetCode($resetCode);
+                $entityManager->flush();
+                return $this->redirectToRoute('verify_reset_code', ['resetCode' => $resetCode]);
+            }
+            $this->addFlash('errorForm', 'Information incorrect.');
+        }
+
+        return $this->render('front/user/reset_password.html.twig', [
+            'form' => $form->createView(),
+        ]);
     }
+
 
     #[Route('/verify-reset-code/{resetCode}', name: 'verify_reset_code')]
     public function verifyResetCode(Request $request, $resetCode, EntityManagerInterface $entityManager ,UserPasswordHasherInterface $userPasswordHasher)
@@ -214,6 +276,62 @@ class UserController extends AbstractController
             'form' => $form->createView(),
         ]);
     }
+    #[Route('/resetPassword/profil', name: 'reset_password_profil')]
+    public function resetPasswordProfile(Request $request, EntityManagerInterface $entityManager ,UserPasswordHasherInterface $userPasswordHasher)
+    {
+        $user = $this->getUser();
+
+        $form = $this->createForm(ChangePasswordType::class,$user);
+        $form->handleRequest($request);
+        $data = $form->getData();
+
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $hashedPassword = $userPasswordHasher->hashPassword($user, $data->getPassword());
+            $user->setPassword($hashedPassword);
+            $user->setResetCode(null);
+            $entityManager->flush();
+
+            $this->addFlash(
+                'success',
+                'Mot de passe changer avec succéss.'
+            );
+
+            return $this->redirectToRoute('app_myprofile');
+        }
+
+        return $this->render('front/user/verify_reset_code.html.twig', [
+            'form' => $form->createView(),
+        ]);
+    }
+    #[Route('/admin/resetPassword/profil', name: 'reset_password_profil_admin')]
+    public function resetPasswordProfileAdmin(Request $request, EntityManagerInterface $entityManager ,UserPasswordHasherInterface $userPasswordHasher)
+    {
+        $user = $this->getUser();
+
+        $form = $this->createForm(ChangePasswordType::class,$user);
+        $form->handleRequest($request);
+        $data = $form->getData();
+
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $hashedPassword = $userPasswordHasher->hashPassword($user, $data->getPassword());
+            $user->setPassword($hashedPassword);
+            $user->setResetCode(null);
+            $entityManager->flush();
+
+            $this->addFlash(
+                'success',
+                'Mot de passe changer avec succéss.'
+            );
+
+            return $this->redirectToRoute('app_myprofile_admin');
+        }
+
+        return $this->render('back/user/verify_reset_code.html.twig', [
+            'form' => $form->createView(),
+        ]);
+    }
 
 
     private function generateResetCode()
@@ -225,25 +343,54 @@ class UserController extends AbstractController
     public function showUsersAdmin(UserRepository $userRepository): Response
     {
         $users=$userRepository->findAll();
+        $usersConnected = $userRepository->createQueryBuilder('u')
+            ->where('u.lastlogin IS NOT NULL')
+            ->orderBy('u.lastlogin', 'DESC')
+            ->getQuery()
+            ->getResult();
         return $this->render('back/user/index.html.twig', [
             'users'=>$users,
+            'usersConnected'=>$usersConnected,
         ]);
     }
     #[Route('/admin/MonProfile', name: 'app_myprofile_admin')]
-    public function MyprofileAdmin(): Response
+    public function MyprofileAdmin(UserRepository $userRepository): Response
     {
+        $usersConnected = $userRepository->createQueryBuilder('u')
+            ->where('u.lastlogin IS NOT NULL')
+            ->orderBy('u.lastlogin', 'DESC')
+            ->getQuery()
+            ->getResult();
+
         return $this->render('back/user/profile.html.twig', [
             'user' => $this->getUser(),
+            'usersConnected'=>$usersConnected,
+
         ]);
     }
     #[Route('/admin/modifier-profil', name: 'app_edit_profile_admin')]
-    public function editProfileAdmin(Request $request): Response
+    public function editProfileAdmin(Request $request,UserRepository $userRepository): Response
     {
         $user = $this->getUser();
         $form = $this->createForm(UserWithoutPasswordType::class, $user);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            $file = $form->get('image')->getData();
+            if ($file) {
+                $fileName = md5(uniqid()) . '.' . $file->guessExtension();
+                try {
+                    $file->move(
+                        $this->getParameter('images_directory'),
+                        $fileName
+                    );
+                } catch (FileException $e) {
+
+                }
+                $user->setImage($fileName);
+            }
+            $userRepository->updateUser($user, true);
+
             $this->getDoctrine()->getManager()->flush();
 
             return $this->redirectToRoute('app_myprofile_admin');
@@ -257,6 +404,7 @@ class UserController extends AbstractController
     #[Route('/admin/{id}/edit', name: 'app_user_edit_etat', methods: ['GET', 'POST'])]
     public function editEtat($id,UserRepository $userRepository ): Response
     {
+
         $user = $userRepository->getUserById($id);
         if($user->getStatus() == 'active') {
             $user->setStatus('inactive');
@@ -265,7 +413,6 @@ class UserController extends AbstractController
             $user->setStatus('active');
         //update user
         $userRepository->updateUser( $user, true);
-
         return $this->redirectToRoute('app_users_index_admin', [], Response::HTTP_SEE_OTHER);
     }
 
@@ -286,6 +433,18 @@ class UserController extends AbstractController
 
         return $this->redirectToRoute('app_users_index_admin', [], Response::HTTP_SEE_OTHER);
     }
+
+    /**
+     * @Route("/profile/{id}", name="app_show_profile", methods={"GET"})
+     */
+    #[Route("/profile/show/{id}", name:"app_show_profile")]
+    public function showProfile(User $user): Response
+    {
+        return $this->render('back/user/showProfile.html.twig', [
+            'user' => $user,
+        ]);
+    }
+
 
 
 }

@@ -2,50 +2,77 @@
 
 namespace App\Entity;
 
-use Doctrine\ORM\Mapping as ORM;
+use DateTime;
 use Doctrine\DBAL\Types\Types;
+use App\Repository\EventRepository;
+use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
 
-#[ORM\Entity]
+#[ORM\Entity(repositoryClass: EventRepository::class)]
 class Event
 {
     #[ORM\Id]
-    #[ORM\GeneratedValue(strategy: "IDENTITY")]
-    #[ORM\Column(name: "idEvent", type: "integer", nullable: false)]
-    private $idevent;
+    #[ORM\GeneratedValue(strategy: "AUTO")]
+    #[ORM\Column(type: "integer")]
+    private ?int $idevent;
 
-    #[ORM\Column(name: "nameEvent", type: "string", length: 100, nullable: false)]
-    private $nameevent;
+    #[ORM\Column]
+    #[Assert\NotBlank(message: "L'ID de l'établissement ne doit pas être vide.")]
+    #[Assert\Type(type: "integer", message: "L'ID de l'établissement doit être un nombre.")]
+    private ?int $idestab;
 
-    #[ORM\Column(name: "dateEvent", type: "date", nullable: false)]
-    private $dateevent;
+    #[ORM\Column(length :255)]
+    #[Assert\NotBlank(message: "Le nom de l'événement ne doit pas être vide.")]
+    #[Assert\Length(max: 255, maxMessage: "Le nom de l'événement ne peut pas dépasser {{ limit }} caractères.")]
+    private ?string $nameevent;
 
-    #[ORM\Column(name: "nbrMax", type: "integer", nullable: false)]
-    private $nbrmax;
+    #[ORM\Column(type: Types::DATE_MUTABLE)]
+    #[Assert\NotBlank(message: "La date de l'événement ne doit pas être vide.")]
+    #[Assert\GreaterThan("today", message: "La date de l'événement doit être ultérieure à la date actuelle.")]
+    #[Assert\Type(type: "\DateTimeInterface", message: "La date de l'événement doit être de type date.")]
+    private ?\DateTimeInterface $dateevent;
 
-    #[ORM\Column(name: "prix", type: "float", precision: 10, scale: 0, nullable: false)]
-    private $prix;
+    #[ORM\Column]
+    #[Assert\NotBlank(message: "Le nombre maximum ne doit pas être vide.")]
+    #[Assert\GreaterThan(value: 0, message: "Le nombre maximum doit être supérieur à zéro.")]
+    private ?int $nbrmax;
 
-    #[ORM\Column(name: "description", type: "string", length: 100, nullable: false)]
-    private $description;
+    #[ORM\Column]
+    #[Assert\NotBlank(message: "Le prix ne doit pas être vide.")]
+    #[Assert\GreaterThan(value: 0, message: "Le prix doit être supérieur à zéro.")]
+    private ?float $prix;
 
-    #[ORM\Column(name: "image", type: "string", length: 100, nullable: false)]
-    private $image;
+    #[ORM\Column(length :500)]
+    #[Assert\NotBlank(message: "La description ne doit pas être vide.")]
+    #[Assert\Length(max: 500, maxMessage: "La description ne peut pas dépasser {{ limit }} caractères.")]
+    private ?string $description;
 
-    #[ORM\ManyToOne(targetEntity: "Etablissement")]
-    #[ORM\JoinColumn(name: "idEstab", referencedColumnName: "ID_Etablissement")]
-    private $idestab;
+    #[ORM\Column(length :255)]
+    //#[Assert\NotBlank(message: "Le chemin de l'image ne doit pas être vide.")]
+    //#[Assert\Length(max: 255, maxMessage: "Le chemin de l'image ne peut pas dépasser {{ limit }} caractères.")]
+    private ?string $image;
 
-    #[ORM\ManyToOne(targetEntity: "Partner")]
     
-        #[ORM\JoinColumn(name: "idPartnerCE", referencedColumnName: "idPartner")]
-    
-    private $idpartnerce;
-
+    #[ORM\ManyToOne(targetEntity:"Partner")]
+    #[ORM\JoinColumn(name:"idPartnerCE", referencedColumnName:"idPartner")]
+    private ?Partner $idpartnerce;
 
     public function getIdevent(): ?int
     {
         return $this->idevent;
+    }
+
+    public function getIdestab(): ?int
+    {
+        return $this->idestab;
+    }
+
+    public function setIdestab(?int $idestab): static
+    {
+        $this->idestab = $idestab;
+
+        return $this;
     }
 
     public function getNameevent(): ?string
@@ -53,7 +80,7 @@ class Event
         return $this->nameevent;
     }
 
-    public function setNameevent(string $nameevent): static
+    public function setNameevent(?string $nameevent): static
     {
         $this->nameevent = $nameevent;
 
@@ -65,7 +92,7 @@ class Event
         return $this->dateevent;
     }
 
-    public function setDateevent(\DateTimeInterface $dateevent): static
+    public function setDateevent(?\DateTimeInterface $dateevent): static
     {
         $this->dateevent = $dateevent;
 
@@ -77,7 +104,7 @@ class Event
         return $this->nbrmax;
     }
 
-    public function setNbrmax(int $nbrmax): static
+    public function setNbrmax(?int $nbrmax): static
     {
         $this->nbrmax = $nbrmax;
 
@@ -89,7 +116,7 @@ class Event
         return $this->prix;
     }
 
-    public function setPrix(float $prix): static
+    public function setPrix(?float $prix): static
     {
         $this->prix = $prix;
 
@@ -101,7 +128,7 @@ class Event
         return $this->description;
     }
 
-    public function setDescription(string $description): static
+    public function setDescription(?string $description): static
     {
         $this->description = $description;
 
@@ -132,15 +159,5 @@ class Event
         return $this;
     }
 
-    public function getIdestab(): ?Etablissement
-    {
-        return $this->idestab;
-    }
 
-    public function setIdestab(?Etablissement $idestab): static
-    {
-        $this->idestab = $idestab;
-
-        return $this;
-    }
 }

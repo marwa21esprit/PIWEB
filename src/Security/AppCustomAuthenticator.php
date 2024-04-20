@@ -17,15 +17,19 @@ use Symfony\Component\Security\Http\Authenticator\Passport\Credentials\PasswordC
 use Symfony\Component\Security\Http\Authenticator\Passport\Passport;
 use Symfony\Component\Security\Http\SecurityRequestAttributes;
 use Symfony\Component\Security\Http\Util\TargetPathTrait;
+use Doctrine\ORM\EntityManagerInterface;
 
 class AppCustomAuthenticator extends AbstractLoginFormAuthenticator
 {
     use TargetPathTrait;
 
     public const LOGIN_ROUTE = 'app_login';
+    private EntityManagerInterface $entityManager;
 
-    public function __construct(private UrlGeneratorInterface $urlGenerator)
+    public function __construct(private UrlGeneratorInterface $urlGenerator,EntityManagerInterface $entityManager)
     {
+        $this->entityManager = $entityManager;
+
     }
 
     public function authenticate(Request $request): Passport
@@ -53,6 +57,10 @@ class AppCustomAuthenticator extends AbstractLoginFormAuthenticator
         }
 
         $userRole = $token->getUser()->getRoles()[0];
+        // Update last login time for the user
+        $user = $token->getUser();
+        $user->setLastLogin(new \DateTime());
+        $this->entityManager->flush();
 
         // For example:
         $user =  $token->getUser();

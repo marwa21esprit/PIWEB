@@ -1,0 +1,50 @@
+{% extends 'base-front.html.twig' %}
+
+{% block title %}Partner Index{% endblock %}
+
+{% block body %}
+    <!-- Team Start -->
+    <div class="container-xxl py-5">
+        <div class="container">
+            <div class="text-center wow fadeInUp" data-wow-delay="0.1s">
+                <h6 class="section-title bg-white text-center text-primary px-3">Partners</h6>
+                <h1 class="mb-5">Our Partners</h1>
+            </div>
+            <div class="row g-4">
+                {% for partner in partners %}
+                    <div class="col-lg-3 col-md-6 wow fadeInUp" data-wow-delay="0.1s">
+                        <div class="team-item bg-light">
+                            <div class="overflow-hidden">
+                                <img class="img-fluid" src="{{ asset('uploads/' ~ partner.image) }}" alt="">
+                            </div>
+                            <div class="text-center p-4">
+                                <h4 class="mb-0">{{ partner.namepartner }}</h4>
+                                <table class="table">
+                                    <tbody>
+                                    <tr>
+                                        <th>partner's Type</th>
+                                        <td>{{ partner.typepartner }}</td>
+                                    </tr>
+                                    <tr>
+                                        <th>Partner's Description</th>
+                                        <td>{{ partner.description }}</td>
+                                    </tr>
+                                    <tr>
+                                        <th>Email</th>
+                                        <td>{{ partner.email }}</td>
+                                    </tr>
+                                    <tr>
+                                        <th>Phone N°</th>
+                                        <td>{{ partner.tel }}</td>
+                                    </tr>
+                                    </tbody>
+                                </table>
+                                <a href="{{ path('show_events_by_partner', {'id': partner.idpartner}) }}" class="btn btn-primary">Show Events</a>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+{% endblock %}

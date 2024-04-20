@@ -1,14 +1,16 @@
 <?php
-
 namespace App\Form;
-use Symfony\Component\Form\Extension\Core\Type\PasswordType;
 
 use App\Entity\User;
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\CallbackTransformer;
+use Symfony\Component\Validator\Constraints\NotBlank;
+use Symfony\Component\Validator\Constraints\Length;
+use Symfony\Component\Validator\Constraints\Email;
 use Symfony\Component\Validator\Constraints as Assert;
 
 class UserType extends AbstractType
@@ -16,7 +18,12 @@ class UserType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
-            ->add('email')
+            ->add('email', null, [
+                'constraints' => [
+                    new NotBlank(['message' => 'L\'adresse e-mail ne peut pas être vide']),
+                    new Email(['message' => 'L\'adresse e-mail "{{ value }}" n\'est pas valide']),
+                ],
+            ])
             ->add('roles', ChoiceType::class, [
                 'required' => true,
                 'multiple' => false,
@@ -28,27 +35,39 @@ class UserType extends AbstractType
                 ],
                 'label' => 'Rôle', // Label in French
             ])
-            ->add('password', PasswordType::class, [
-                'attr' => ['class' => 'form-control mb-3'],
+            ->add('password', null, [
                 'constraints' => [
-                    new Assert\NotBlank([
-                        'message' => 'Veuillez saisir un mot de passe',
-                    ]),
-                    new Assert\Length([
+                    new NotBlank(['message' => 'Le mot de passe ne peut pas être vide']),
+                    new Length([
                         'min' => 8,
                         'minMessage' => 'Le mot de passe doit contenir au moins {{ limit }} caractères.',
-                        'max' => 4096,
                     ]),
-                    new Assert\Regex([
-                        'pattern' => "/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).+$/",
-                        'message' => "Le mot de passe doit contenir au moins une lettre minuscule, une lettre majuscule et un chiffre."
-                    ]),
+                    // Add more constraints if needed
                 ],
+                'label' => 'Mot de passe', // Label in French
             ])
             ->add('name', null, [
+                'constraints' => [
+                    new NotBlank(['message' => 'Le nom ne peut pas être vide']),
+                    new Length([
+                        'min' => 2,
+                        'max' => 255,
+                        'minMessage' => 'Le nom doit contenir au moins {{ limit }} caractères',
+                        'maxMessage' => 'Le nom ne peut pas dépasser {{ limit }} caractères',
+                    ]),
+                ],
                 'label' => 'Nom', // Label in French
             ])
             ->add('address', null, [
+                'constraints' => [
+                    new NotBlank(['message' => 'L\'adresse ne peut pas être vide']),
+                    new Length([
+                        'min' => 5,
+                        'max' => 255,
+                        'minMessage' => 'L\'adresse doit contenir au moins {{ limit }} caractères',
+                        'maxMessage' => 'L\'adresse ne peut pas dépasser {{ limit }} caractères',
+                    ]),
+                ],
                 'label' => 'Adresse', // Label in French
             ])
             ->add('question', ChoiceType::class, [
@@ -61,10 +80,34 @@ class UserType extends AbstractType
                 'placeholder' => 'Choisir une question', // Optional: add a selection option
                 'required' => true, // Optional: set to true if you want to make the field required
                 'label' => 'Question de sécurité', // Label in French
+                'constraints' => [
+                    new NotBlank(['message' => 'La question ne peut pas être vide']),
+                    new Length([
+                        'min' => 5,
+                        'max' => 255,
+                        'minMessage' => 'La question doit contenir au moins {{ limit }} caractères',
+                        'maxMessage' => 'La question ne peut pas dépasser {{ limit }} caractères',
+                    ]),
+                ],
             ])
             ->add('answer', null, [
+                'constraints' => [
+                    new NotBlank(['message' => 'La réponse ne peut pas être vide']),
+                    new Length([
+                        'min' => 2,
+                        'max' => 255,
+                        'minMessage' => 'La réponse doit contenir au moins {{ limit }} caractères',
+                        'maxMessage' => 'La réponse ne peut pas dépasser {{ limit }} caractères',
+                    ]),
+                ],
                 'label' => 'Réponse', // Label in French
-            ]);
+            ])
+            ->add('image', FileType::class, [
+                'label' => false,
+                'mapped' => false,
+                'required' => false
+            ])
+        ;
 
         $builder->get('roles')
             ->addModelTransformer(new CallbackTransformer(
