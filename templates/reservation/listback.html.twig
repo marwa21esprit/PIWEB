@@ -1,69 +1,189 @@
 {% extends '/back/gestion.html.twig' %}
+{% block stylesheets %}
+    <style>
+        /* Style to remove space between card header and card body */
+        .card .card-body {
+            padding-top: 0; /* Adjust as needed */
+        }
+
+       .round-input,
+        #sortingCriteria.form-control {
+            border: none;
+            border-radius: 15px; /* Adjust border-radius to make it round */
+            padding: 8px 12px; /* Adjust padding for smaller size */
+            box-shadow: 0 0 5px rgba(19, 103, 200, 1); /* Add initial blue shadow */
+            font-weight: bold; /* Set initial font weight */
+            transition: box-shadow 0.3s; /* Add transition for smooth effect */
+        }
+
+        .round-input:focus,
+        #sortingCriteria.form-control:focus {
+            font-weight: normal; /* Make text bold on focus */
+            box-shadow: 0 0 10px rgba(19, 103, 200, 2.8); /* Increase blue shadow on focus */
+        }
+
+        /* Custom styling for sorting select */
+        #sortingCriteria.form-control {
+            background-color: #f8f9fa; /* Background color */
+            border: 1px solid #ced4da; /* Border */
+            border-radius: 15px; /* Border radius */
+            padding: 8px 12px; /* Padding */
+            font-weight: bold; /* Font weight */
+            transition: box-shadow 0.3s; /* Transition effect */
+        }
+    </style>
+{% endblock %}
 
 {% block body %}
-    <div class="container">
+<div class="container">
     <div class="row page-titles mx-0">
-            <div class="col-sm-6 p-md-0">
-                <div class="welcome-text">
-                    <h4>All Reservations</h4>
-                </div>
-            </div>
-            <div class="col-sm-6 p-md-0 justify-content-sm-end mt-2 mt-sm-0 d-flex">
-                <ol class="breadcrumb">
-                    <li class="breadcrumb-item"><a href="{{ path('Dashboard') }}">Home</a></li>
-                    <li class="breadcrumb-item active"><a href="#">All Reservations</a></li>
-                </ol>
+        <div class="col-sm-6 p-md-0">
+            <div class="welcome-text">
+                <h4>All Reservations</h4>
             </div>
         </div>
-
-        <div style="display: flex; justify-content: space-between; align-items: center;">
-            <h1></h1>
-            <div class="search_bar dropdown ; header-left">
-                <span class="search_icon p-3 c-pointer" data-toggle="dropdown">
-                    <i class="mdi mdi-magnify"></i>
-                </span>
-                <div class="dropdown-menu p-0 m-0">
-                    <form action="{{path ('search_reservations')}}" method="GET" id="searchForm">
-                        <input class="form-control" type="search" name="query" id="searchInput" placeholder="Search" aria-label="Search">
-                    </form>
-                </div>
-            </div>
-        </div>
-        <div class="row">
-            {% for reservation in reservations %}
-                <div class="col-xl-3 col-xxl-4 col-lg-6 col-md-6">
-                    <div class="card">
-                        <img class="img-fluid" src="{{ asset('uploads/' ~ reservation.Imagesrc) }}" >
-                        <div class="card-body">
-                            <h4>{{ reservation.namee}}</h4>
-                            <ul class="list-group mb-3 list-group-flush">
-                                <li class="list-group-item px-0 d-flex justify-content-between">
-                                    <span class="mb-0">Reserver par:</span><strong>{{ reservation.IdUser.name?? 'Unknown User' }} </strong>
-                                </li>
-                                <li class="list-group-item px-0 d-flex justify-content-between">
-                                    <span><i class="fa fa-mail text-primary mr-2"></i>Number of places :</span><strong>{{ reservation.nbPlaces }}/{{ reservation.IdEvent.nbrmax }}</strong>
-                                </li>
-                                <li class="list-group-item px-0 d-flex justify-content-between">
-                                    <span><i class="fa fa-mail text-primary mr-2"></i>Prix payé :</span><strong>{{ reservation.IdEvent.prix * reservation.nbPlaces }}</strong>
-                                </li>
-                            </ul>
-                            <a href="" class="btn btn-primary">PDF</a>
-                        </div>
-                    </div>
-                </div>
-            {% endfor %}
+        <div class="col-sm-6 p-md-0 justify-content-sm-end mt-2 mt-sm-0 d-flex">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{{ path('Dashboard') }}">Home</a></li>
+                <li class="breadcrumb-item active"><a href="#">All Reservations</a></li>
+            </ol>
         </div>
     </div>
+    <div class="row">
+        <div class="col-xl-12 col-xxl-12 col-lg-12 col-md-12 col-sm-12">
+            <div class="card">
+                <div class="card-header">
+                    <h4 class="card-title">
+                        <select id="sortingCriteria" class="form-control">
+                            <option value="eventName">Event Name</option>
+                            <option value="userName">User Name</option>
+                        </select>
+                    </h4>
+                    <input id="searchInput" type="text" name="query" placeholder="Search..." class="round-input">
+                </div>
+                <div class="card-body">
+                    <div class="row mb-3">
+                        <div class="col-sm-6">
+                        </div>
+                    </div>
+                    <div class="table-responsive recentOrderTable">
+                        <table id="reservationsTable" class="table verticle-middle table-responsive-md">
+                            <thead>
+                                <tr>
+                                    <th scope="col">Event Image</th>
+                                    <th scope="col">Event Name</th>
+                                    <th scope="col">UserName</th>
+                                    <th scope="col">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for reservation in reservations %}
+                                <tr>
+                                    <td><img class="img-fluid" src="{{ asset('uploads/' ~ reservation.Imagesrc) }}" style="height: 80px;"></td>
+                                    <td><h4>{{ reservation.namee}}</h4></td>
+                                    <td>{{ reservation.name ?? 'Unknown User' }}</td>
+                                    <td>
+                                        <button type="button" class="btn btn-sm btn-danger delete-btn" onclick="generatePDF({{ reservation.id }})"><i class="la la-file-pdf-o"></i></button>
+                                        <a href="{{ path('show_resB', {'id': reservation.id}) }}" class="btn btn-sm btn-primary"><i class="la la-eye"></i></a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 
-    <script>
-        // Get the search input and form
-        const searchInput = document.getElementById('searchInput');
-        const searchForm = document.getElementById('searchForm');
+<script>
+const searchInput = document.getElementById('searchInput');
 
-        // Add event listener to the search input
-        searchInput.addEventListener('input', function() {
-            // Submit the form when the input value changes
-            searchForm.submit();
-        });
-    </script>
+function performSearch() {
+    const query = searchInput.value.trim().toLowerCase(); // Convert the query to lowercase for case-insensitive search
+
+    const rows = document.getElementById('reservationsTable').getElementsByTagName('tr'); // Get all table rows
+
+    for (let i = 0; i < rows.length; i++) {
+        const row = rows[i];
+        const cells = row.getElementsByTagName('td'); // Get all cells in the row
+
+        let found = false;
+
+        // Iterate through each cell in the row
+        for (let j = 1; j < cells.length - 1; j++) { // Exclude the first and last cell
+            const cell = cells[j];
+            const text = cell.textContent.toLowerCase(); // Get the text content of the cell and convert to lowercase
+
+            if (text.startsWith(query)) { // Check if the cell content contains the search query
+                found = true;
+                break; // Stop searching if a match is found in any cell
+            }
+        }
+
+        // Show or hide the row based on search result
+        row.style.display = found ? '' : 'none';
+    }
+}
+
+searchInput.addEventListener('input', performSearch);
+</script>
+
+<script>
+const sortingCriteria = document.getElementById('sortingCriteria');
+
+function performSort() {
+    const selectedCriterion = sortingCriteria.value; // Get the selected sorting criterion
+
+    const tbody = document.querySelector('#reservationsTable tbody');
+    const rows = Array.from(tbody.querySelectorAll('tr'));
+
+    rows.sort((a, b) => {
+        const textA = a.querySelector(`td:nth-child(${selectedCriterion === 'eventName' ? 2 : 3})`).textContent.toLowerCase();
+        const textB = b.querySelector(`td:nth-child(${selectedCriterion === 'eventName' ? 2 : 3})`).textContent.toLowerCase();
+
+        return textA.localeCompare(textB);
+    });
+
+    rows.forEach(row => tbody.appendChild(row));
+}
+
+sortingCriteria.addEventListener('change', performSort); // Listen for changes in sorting criteria
+performSort(); // Perform initial sorting
+</script>
+
+<script>
+function generatePDF(reservationId) {
+    // Make an AJAX request to generate the PDF
+    var pdfUrl = '/reservation/' + reservationId + '/pdf';
+    var xhr = new XMLHttpRequest();
+    xhr.open('GET', pdfUrl, true);
+    xhr.responseType = 'blob'; // Set response type to blob
+    xhr.onload = function () {
+        if (xhr.status === 200) {
+            // Create a blob URL from the response data
+            var blob = new Blob([xhr.response], { type: 'application/pdf' });
+            var pdfUrl = window.URL.createObjectURL(blob);
+
+            // Dynamically generate QR code image
+            var qrCodeUrl = '/reservation/' + reservationId + '/generate-qr';
+            var qrCodeImg = document.createElement('img');
+            qrCodeImg.src = qrCodeUrl;
+            qrCodeImg.alt = 'QR code';
+
+            // Create a link element and click it to trigger download
+            var a = document.createElement('a');
+            a.href = pdfUrl;
+            a.download = 'reservation_' + reservationId + '.pdf'; // Set the file name
+            document.body.appendChild(a);
+            a.click();
+
+            // Clean up by revoking object URLs
+            window.URL.revokeObjectURL(pdfUrl);
+        }
+    };
+    xhr.send();
+}
+</script>
 {% endblock %}

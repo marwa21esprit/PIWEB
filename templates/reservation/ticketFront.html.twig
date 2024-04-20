@@ -116,6 +116,17 @@
             color: #d83565;
         }
 
+        .show-nameUSER h1 {
+            font-size: 20px;
+            font-family: "Nanum Pen Script", cursive;
+            color: #4a437e;
+        }
+        .show-nameUSER p {
+            font-size: 15px;
+            font-family: "Nanum Pen Script", cursive;
+            color: #4a437e;
+        }
+
         .show-name h1 {
             font-size: 48px;
             font-weight: 700;
@@ -141,7 +152,6 @@
         .left .time {
             font-size: 16px;
         }
-
 
         .location {
             display: flex;
@@ -194,51 +204,61 @@
             color: gray;
         }
 
-
         .form-error-message {
             color: red;
         }
         
         .alert.alert-dan {
-    background-color: transparent;
-    border: none;
-    color: red;
-    font-size: small;
-    font-weight: bold;
-}
-
-
+            background-color: transparent;
+            border: none;
+            color: red;
+            font-size: small;
+            font-weight: bold;
+        }
     </style>
 {% endblock %}
 
 {% block ticket %}
-    <div class="spacer"></div>
+    <div class="spacer">
+    <a href="{{ path('app_reservations') }}" class="btn btn-primary back-btn" style="position: absolute; top: 100px; left: 20px;">
+        <i class="fas fa-arrow-left"></i> <!-- Assuming you're using Font Awesome for icons -->
+    </a></div>
 
-    <div class="ticket created-by-anniedotexe">
+
+    <div class="spacer"></div>
+        <div class="spacer"></div>
+
+    <div class="ticket created-by-anniedotexe"> <!-- Add ID here -->
         <div class="left">
-            <div class="image" style="background-image: url('{{ asset('uploads/' ~ event.image) }}');">
+            <div class="image" style="background-image: url('{{ asset('uploads/' ~ reservation.Imagesrc) }}');">
                 <p class="admit-one">
                     <span>ADMIT ONE</span>
                     <span>ADMIT ONE</span>
                     <span>ADMIT ONE</span>
                 </p>
                 <div class="ticket-number">
-                    <p>#{{ event.idevent }}</p>
+                    <p>#{{ reservation.id }}</p>
+                </div>
+                <div class="show-nameUSER">
+                    <h1>Reserved by : <strong>{{ reservation.IdUser.name ?? 'Unknown User' }}</strong></h1>
+                    <p>AT: {{ paiement.heureP | date('Y-m-d H:i:s') }}</p> <!-- Display heureP here -->
+                    <p>Montant Total: {{ reservation.NbPlaces * reservation.Eventprice }} TND</p>
                 </div>
             </div>
             <div class="ticket-info">
                 <p class="date">
-                    <span>{{ event.dateevent|date('l') }}</span>
-                    <span class="june-29">{{ event.dateevent|date('F jS') }}</span>
-                    <span>{{ event.dateevent|date('Y') }}</span>
+                    <span>{{ reservation.IdEvent.dateevent|date('l') }}</span>
+                    <span class="june-29">{{ reservation.IdEvent.dateevent|date('F jS') }}</span>
+                    <span>{{ reservation.IdEvent.dateevent|date('Y') }}</span>
                 </p>
                 <div class="show-name">
                     <h1>EVENT</h1>
-                    <h2>{{ event.nameEvent }}</h2>
+                    <h2>{{ reservation.namee }}</h2>
                 </div>
                 <div class="time">
                     <p>8:00 PM <span>TO</span> 11:00 PM</p>
                     <p>DOORS <span>@</span> 7:00 PM</p>
+                    <p>Reserved Places <span>:</span> {{ reservation.nbPlaces }}</p>
                 </div>
                 <p class="location"><span>Tanit Online</span>
                     <span class="separator"><i class="far fa-smile"></i></span><span>Tunisia, Ariana</span>
@@ -260,33 +280,43 @@
                     <p>DOORS <span>@</span> 7:00 PM</p>
                 </div>
                 <div class="barcode">
-                    <img src="https://external-preview.redd.it/cg8k976AV52mDvDb5jDVJABPrSZ3tpi1aXhPjgcDTbw.png?auto=webp&s=1c205ba303c1fa0370b813ea83b9e1bddb7215eb" alt="QR code">
+                    <img src="{{ qrCodeUrl }}" alt="QR code">
                 </div>
                 <p class="ticket-number">#20030220</p>
-            </div>
-        </div>
-    </div>
+                    <button type="button" class="btn btn-sm btn-danger print-btn" data-id="{{ reservation.id }}"><i class="la la-print"></i></button>
 
-    <div class="container-xxl py-5">
-        <div class="row justify-content-center mt-5">
-            <div class="col-md-8">
-                <form method="post" novalidate>
-                    {{ form_start(f) }}
-                    <div class="mb-3">
-                        {{ form_label(f.nbPlaces, 'Number of Places', {'label_attr': {'class': 'form-label fw-medium'}}) }}
-                        {{ form_widget(f.nbPlaces, {'attr': {'class': 'form-control'}}) }}
-                        {% if f.nbPlaces.vars.errors|length > 0 %}
-                            <div class="alert alert-dan">
-                                {% for error in f.nbPlaces.vars.errors %}
-                                    <span>{{ error.message }}</span><br>
-                                {% endfor %}
-                            </div>
-                        {% endif %}
-                    </div>
-                    <button type="submit" class="btn btn-primary btn-lg">Reserve</button>
-                    {{ form_end(f) }}
-                </form>
             </div>
         </div>
     </div>
-{% endblock %}
+</div>
+<script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const printButtons = document.querySelectorAll(".print-btn");
+
+            printButtons.forEach(function(button) {
+                button.addEventListener("click", function() {
+                    // Select the ticket element to print
+                    const ticketToPrint = button.closest(".ticket");
+
+                    // Create a new window to print the ticket
+                    const printWindow = window.open("", "_blank");
+                    printWindow.document.open();
+                    printWindow.document.write('<html><head><title>Ticket</title>');
+                    printWindow.document.write('</head><body>');
+                    printWindow.document.write(ticketToPrint.innerHTML);
+                    printWindow.document.write('</body></html>');
+                    printWindow.document.close();
+
+                    // Wait for the ticket to be fully loaded before printing
+                    printWindow.onload = function() {
+                        printWindow.focus();
+                        printWindow.print();
+                        printWindow.close();
+                    };
+                });
+            });
+        });
+    </script>
+    {% endblock %}
+
+   
