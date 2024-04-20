@@ -3,7 +3,10 @@
 namespace App\Entity;
 
 use DateTime;
+
 use Doctrine\Common\Collections\ArrayCollection;
+
+
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use App\Repository\EtablissementRepository;
@@ -42,6 +45,8 @@ class Etablissement
         pattern: '/^\d{8}$/',
         message: 'The telephone number must contain exactly 8 digits.'
     )]
+
+
     #[ORM\Column(type: "integer")]
     private ?int $telEtablissement;
 
@@ -55,6 +60,7 @@ class Etablissement
     private ?string$directeurEtablissement;
 
     #[ORM\Column(type: "datetime")]
+
     #[Assert\NotBlank(message: "La date de l'événement ne doit pas être vide.")]
     #[Assert\GreaterThan("today", message: "La date de l'événement doit être ultérieure à la date actuelle.")]
     #[Assert\Type(type: "\DateTimeInterface", message: "La date de l'événement doit être de type date.")]
@@ -118,6 +124,10 @@ class Etablissement
     {
         $this->dislikes = $dislikes;
     }
+
+
+    #[Assert\LessThan("today", message: "The date of foundation must be less than today")]
+    private ?DateTime $dateFondation;
 
     public function getIdEtablissement(): ?int
     {

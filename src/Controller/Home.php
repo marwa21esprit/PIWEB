@@ -29,4 +29,13 @@ class Home extends AbstractController
     }
 
 
+
+    #[Route('/contact', name: 'contact')]
+    public function contact(): Response
+    {
+        return $this->render('front/contact.html.twig');
+    }
+
+    
+
 }

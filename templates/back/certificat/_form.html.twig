@@ -21,6 +21,12 @@
             {{ form_label(form.dateObtentionCertificat, 'Foundation Date') }}
             {{ form_widget(form.dateObtentionCertificat, {'attr': {'class': 'form-control datepicker-default', 'id': 'datepicker'}}) }}
             {{ form_errors(form.dateObtentionCertificat) }}
+
+            {{ form_label(form.dateObtentionCertificat, 'Delivration Date') }}
+            {{ form_widget(form.dateObtentionCertificat, {'attr': {'class': 'form-control datepicker-default', 'id': 'datepicker'}}) }}
+            <div class="error-message">
+                {{ form_errors(form.dateObtentionCertificat) }}
+            </div>
         </div>
 
         <div class="form-group">

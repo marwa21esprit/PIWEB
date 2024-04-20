@@ -19,6 +19,7 @@ class EtablissementController extends AbstractController
 {
 
     #[Route('/', name: 'app_etablissement_index')]
+
     public function showEtablissement(
         EtablissementRepository $etablissementRepository,
         UserEtablissementRepository $userEtablissementRepository
@@ -79,6 +80,22 @@ class EtablissementController extends AbstractController
         ]);
     }
 
+
+    public function showEtablissement(EtablissementRepository $aR): Response
+    {
+        $etablissBD=$aR->findAll();
+        return $this->render('front/etablissement/index.html.twig', [
+            'etablissements'=>$etablissBD,
+        ]);
+    }
+    #[Route('/admin', name: 'app_etablissement_index_admin')]
+    public function showEtablissementAdmin(EtablissementRepository $aR): Response
+    {
+        $etablissBD=$aR->findAll();
+        return $this->render('back/etablissement/index.html.twig', [
+            'etablissements'=>$etablissBD,
+        ]);
+    }
 
     #[Route('/new', name: 'app_etablissement_new', methods: ['GET', 'POST'])]
     public function new(Request $request, EntityManagerInterface $entityManager): Response

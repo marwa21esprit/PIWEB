@@ -11,6 +11,8 @@ use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 
+use Symfony\Component\Validator\Constraints as Assert;
+
 class CertificatType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options): void
@@ -57,10 +59,18 @@ class CertificatType extends AbstractType
                     }
                 },
             ])
+                'data' => new \DateTime(),
+            ])
+
             ->add('idEtablissement', EntityType::class, [
                 'class' => Etablissement::class,
                 'choice_label' => 'nomEtablissement',
                 'placeholder' => 'Select an etablissement',
+                'constraints' => [
+                    new Assert\NotBlank([
+                        'message' => 'Veuillez sélectionner un établissement.',
+                    ]),
+                ],
             ])
         ;
     }

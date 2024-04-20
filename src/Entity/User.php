@@ -1,6 +1,6 @@
 <?php
-
 namespace App\Entity;
+
 
 use App\Repository\UserRepository;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -252,31 +252,46 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setQuestion(?string $question): static
     {
         $this->question = $question;
+=======
+use Doctrine\ORM\Mapping as ORM;
+use Doctrine\DBAL\Types\Types;
 
-        return $this;
-    }
+#[ORM\Table(name: "user")]
+#[ORM\Entity]
+class User
+{
+    #[ORM\Id]
+    #[ORM\GeneratedValue(strategy: "IDENTITY")]
+    #[ORM\Column(name: "id", type: "integer", nullable: false)]
+    private $id;
 
-    public function getAnswer(): ?string
-    {
-        return $this->answer;
-    }
+    #[ORM\Column(name: "role", type: "string", length: 100, nullable: false)]
+    private $role;
+
+
+    #[ORM\Column(name: "name", type: "string", length: 100, nullable: false)]
+    private $name;
+
+    #[ORM\Column(name: "email", type: "string", length: 100, nullable: false)]
+    private $email;
 
     public function setAnswer(?string $answer): static
     {
         $this->answer = $answer;
 
-        return $this;
-    }
+    #[ORM\Column(name: "password", type: "string", length: 100, nullable: false)]
+    private $password;
 
-    public function getStatus(): ?string
-    {
-        return $this->status;
-    }
 
-    public function setStatus(string $status): static
-    {
-        $this->status = $status;
+    #[ORM\Column(name: "address", type: "string", length: 100, nullable: false)]
+    private $address;
 
-        return $this;
-    }
+    #[ORM\Column(name: "question", type: "string", length: 100, nullable: false)]
+    private $question;
+
+    #[ORM\Column(name: "answer", type: "string", length: 100, nullable: false)]
+    private $answer;
+
+    #[ORM\Column(name: "Status", type: "string", length: 100, nullable: false)]
+    private $status;
 }

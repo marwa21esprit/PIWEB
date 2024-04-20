@@ -12,6 +12,10 @@
             {{ form_label(form.nomEtablissement, 'Name') }}
             {{ form_widget(form.nomEtablissement, {'attr': {'class': 'form-control'}}) }}
             {{ form_errors(form.nomEtablissement) }}
+
+            <div class="error-message">
+                {{ form_errors(form.nomEtablissement) }}
+            </div>
         </div>
         <div class="form-group">
             {{ form_label(form.adresseEtablissement, 'Address') }}
@@ -29,16 +33,27 @@
             {{ form_label(form.telEtablissement, 'Telephone') }}
             {{ form_widget(form.telEtablissement, {'attr': {'class': 'form-control'}}) }}
             {{ form_errors(form.telEtablissement) }}
+            <div class="error-message">
+                {{ form_errors(form.telEtablissement) }}
+            </div>
         </div>
         <div class="form-group">
             {{ form_label(form.directeurEtablissement, 'Director') }}
             {{ form_widget(form.directeurEtablissement, {'attr': {'class': 'form-control'}}) }}
             {{ form_errors(form.directeurEtablissement) }}
+
+            <div class="error-message">
+                {{ form_errors(form.directeurEtablissement) }}
+            </div>
         </div>
         <div class="form-group">
             {{ form_label(form.dateFondation, 'Foundation Date') }}
             {{ form_widget(form.dateFondation, {'attr': {'class': 'form-control datepicker-default', 'id': 'datepicker'}}) }}
             {{ form_errors(form.dateFondation) }}
+
+            <div class="error-message">
+                {{ form_errors(form.dateFondation) }}
+            </div>
         </div>
     </div>
 </div>
