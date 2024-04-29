@@ -1,24 +1,8 @@
-<!DOCTYPE html>
-<html lang="en">
+{% extends 'base-front.html.twig' %}
 
-<head>
-    {% include 'front/header.html.twig' %}
-</head>
+{% block title %}Home{% endblock %}
 
-<body>
-    <!-- Spinner Start -->
-    <div id="spinner" class="show bg-white position-fixed translate-middle w-100 vh-100 top-50 start-50 d-flex align-items-center justify-content-center">
-        <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;" role="status">
-            <span class="sr-only">Loading...</span>
-        </div>
-    </div>
-    <!-- Spinner End -->
-
-
-    <!-- Navbar Start -->
-    {% include 'front/navbar.html.twig' %}
-
-    <div class="container-xxl py-5">
+{% block body %}
 
     <!-- Carousel Start -->
     <div class="container-fluid p-0 mb-5">
@@ -117,7 +101,7 @@
                 </div>
                 <div class="col-lg-6 wow fadeInUp" data-wow-delay="0.3s">
                     <h6 class="section-title bg-white text-start text-primary pe-3">About Us</h6>
-                    <h1 class="mb-4">Welcome to Tanit Online</h1>
+                    <h1 class="mb-4">Welcome to eLEARNING</h1>
                     <p class="mb-4">Tempor erat elitr rebum at clita. Diam dolor diam ipsum sit. Aliqu diam amet diam et eos. Clita erat ipsum et lorem et sit.</p>
                     <p class="mb-4">Tempor erat elitr rebum at clita. Diam dolor diam ipsum sit. Aliqu diam amet diam et eos. Clita erat ipsum et lorem et sit, sed stet lorem sit clita duo justo magna dolore erat amet</p>
                     <div class="row gy-2 gx-4 mb-4">
@@ -514,4 +498,4 @@
     <!-- Footer End -->
 
 
-</html>
+{% endblock %}

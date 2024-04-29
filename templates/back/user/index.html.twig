@@ -1,0 +1,89 @@
+{% extends 'base-back.html.twig' %}
+
+{% block title %}User List{% endblock %}
+{% block stylesheets %}
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" integrity="sha512-i/g3FDIvfANc4vNcF1VmDQNMFfNlFFtQa7z+Snqo6zBqyTEJl4FhBmE3uMaED7dZjvi4F0CQtMFPZw0ar2j9ug==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+
+{% endblock %}
+{% block body %}
+<div class="content-body">
+    <!-- row -->
+    <div class="container-fluid">
+
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h4 class="card-title">User List </h4>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-sm mb-0 table-striped">
+                                <thead>
+                                <tr>
+                                    <th class="py-3">Image</th>
+                                    <th class="py-3">Nom</th>
+                                    <th class="py-3">Email</th>
+                                    <th class="py-3">Address</th>
+                                    <th class="py-3">Role</th>
+                                    <th class="py-3">Question</th>
+                                    <th class="py-3">Reponse</th>
+                                    <th class="py-3">Etat</th>
+                                    <th class="py-3">Actions</th>
+                                </tr>
+                                </thead>
+                                <tbody id="">
+                                {% for user in users %}
+                                    <tr class="btn-reveal-trigger">
+                                        <td class="p-3">
+                                            <img src="{{ asset('uploads/images/' ~ user.image) }}" alt="" style="width: 50px; height: 50px; border-radius: 50%;">
+                                        </td>
+                                        <td class="p-3">{{ user.name }}</td>
+                                        <td class="py-2">{{ user.email }}</td>
+                                        <td class="py-2">{{ user.address }}</td>
+                                        <td class="py-2">
+                                            {{ user.roles[0] }}
+                                        </td>
+                                        <td class="py-2">{{ user.question }}</td>
+                                        <td class="py-2">{{ user.answer }}</td>
+                                        <td class="py-2">
+                                            {% if user.status == 'active' %}
+                                                <div class="text-success">Actif</div>
+                                            {% else %}
+                                                <div class="text-danger">Inactif</div>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            <a href="{{ path('app_show_profile', {'id': user.id}) }}" class="btn btn-sm btn-primary"><i class="la la-eye"></i></a>
+
+                                            {% if user.roles|first != "ROLE_ADMIN" %}
+                                                {% if user.status == 'active' %}
+                                                    <form method="post" action="{{ path('app_user_edit_etat', {'id': user.id}) }}">
+                                                        <button type="submit" class="btn btn-sm btn-warning"><i class="la la-user-times"></i></button>
+                                                    </form>
+                                                {% else %}
+                                                    <form method="post" action="{{ path('app_user_edit_etat', {'id': user.id}) }}">
+                                                        <button type="submit" class="btn btn-sm btn-success" title="Mettre en actif"><i class="la la-user-plus"></i></button>
+                                                    </form>
+                                                {% endif %}
+                                                <a href="{{ path('app_user_delete', {'id': user.id}) }}" type="submit" class="btn btn-sm btn-danger"><i class="la la-trash"></i></a>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                {% else %}
+                                    <tr>
+                                        <td colspan="7" class="text-center">No records found</td>
+                                    </tr>
+                                {% endfor %}
+
+                                </tbody>
+                        </table>
+                    </div>
+                </div>
+                    </div>
+                </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

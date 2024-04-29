@@ -1,6 +1,6 @@
-{% extends '/back/gestion.html.twig' %}
+{% extends 'base-back.html.twig' %}
 
-{% block title %}New Course{% endblock %}
+{% block title %}Ajouter Cours{% endblock %}
 
 {% block body %}
     <div class="content-body">
@@ -25,7 +25,7 @@
                     <div class="card">
 
                         <div class="card-body">
-                            {{ include('back/formation/_form.html.twig') }}
+                            {{ include('back/formation/_form.html.twig',{'button_label': 'Ajouter'}) }}
 
                            
                         </div>

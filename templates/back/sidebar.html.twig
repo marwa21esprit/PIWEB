@@ -6,16 +6,14 @@
 							<i class="la la-home"></i>
 							<span class="nav-text">Dashboard</span>
 						</a>
-					<li><a class="ai-icon" href="" aria-expanded="false">
-							<i class="la la-calendar"></i>
-							<span class="nav-text">Courses</span>
-						</a>
-                        <ul aria-expanded="false">
-                             <li><a href="{{ path('app_formation_index') }}">All Courses</a></li>
-                            <li><a href="{{ path('app_formation_new') }}">Add Course</a></li>
-                        </ul>                       
+                    <li>
+                        <a class="has-arrow" href="{{ path('app_formation_index') }}" aria-expanded="false">
+                            <i class="la la-book"></i>
+                            <span class="nav-text">All Courses</span>
+                        </a>
                     </li>
-					<li><a class="has-arrow" href="javascript:void()" aria-expanded="false">
+
+                    <li><a class="has-arrow" href="javascript:void()" aria-expanded="false">
 							<i class="la la-user"></i>
 							<span class="nav-text">Professors</span>
 						</a>

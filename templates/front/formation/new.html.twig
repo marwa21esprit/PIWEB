@@ -1,22 +1,18 @@
-{% extends '/front/gestion.html.twig' %}
+{% extends 'base-front.html.twig' %}
+
+{% block title %}Ajouter Cour{% endblock %}
 
 {% block body %}
-    <div class="container-xxl py-5">
-        <h2 class="fw-medium">Add Course</h2>
-        <form method="post">
-            {{ form_start(form) }}
-            <div class="mb-3">
-                {{ form_row(form.nom_niveau, { 'label': 'Level', 'attr': {'class': 'form-control'} }) }}
-                {{ form_row(form.categorie, { 'label': 'Category', 'attr': {'class': 'form-control'} }) }}
-                {{ form_row(form.titre, { 'label': 'Title', 'attr': {'class': 'form-control'} }) }}
-                {{ form_row(form.description, { 'label': 'Description', 'attr': {'class': 'form-control'} }) }}
-                {{ form_row(form.date_d, { 'label': 'Debut Date', 'attr': {'class': 'form-control'} }) }}
-                {{ form_row(form.date_f, { 'label': 'Last Date', 'attr': {'class': 'form-control'} }) }}
-                {{ form_row(form.lien, { 'label': 'Link', 'attr': {'class': 'form-control'} }) }}
+    <div class="container mt-5">
+        <h1 class="text-center mb-4">Ajouter Cour</h1>
+
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h5 class="card-title">Ajouter Cour</h5>
             </div>
-            <button type="submit" class="btn btn-primary btn-lg">Add</button>
-            <a href="{{ path('app_formation_index') }}" class="btn btn-secondary">Back to List</a>
-            {{ form_end(form) }}
-        </form>
+            <div class="card-body">
+                {{ include('front/formation/_form.html.twig', {'button_label': 'Ajouter'}) }}
+            </div>
+        </div>
     </div>
 {% endblock %}

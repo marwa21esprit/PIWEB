@@ -3,53 +3,120 @@
 namespace App\Entity;
 
 use App\Repository\FormationnRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\DBAL\Types\Types;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 #[ORM\Entity(repositoryClass: FormationnRepository::class)]
 class Formationn
 {
     #[ORM\Id]
-    #[ORM\GeneratedValue]
-    #[ORM\Column]
+    #[ORM\GeneratedValue(strategy: "AUTO")]
+    #[ORM\Column(name: "id_formation", type: "integer")]
+    #[Groups("post:read")]
     private ?int $id_formation;
 
-    #[ORM\Column(length: 255)]
-    private ?string $nom_niveau = null;
+    #[ORM\ManyToOne(targetEntity: Niveau::class)]
+    #[ORM\JoinColumn(name: "id_niveau", referencedColumnName: "id")]
+    #[Groups("post:read")]
+    private ?Niveau $niveau = null;
 
     #[ORM\Column(length: 255)]
+    #[Groups("post:read")]
     private ?string $categorie = null;
 
     #[ORM\Column(length: 255)]
+    #[Groups("post:read")]
     private ?string $titre = null;
 
     #[ORM\Column(length: 500)]
+    #[Groups("post:read")]
     private ?string $description = null;
 
     #[ORM\Column(type: Types::DATE_MUTABLE)]
+    #[Groups("post:read")]
     private ?\DateTimeInterface $date_d = null;
 
     #[ORM\Column(type: Types::DATE_MUTABLE)]
+    #[Groups("post:read")]
     private ?\DateTimeInterface $date_f = null;
 
     #[ORM\Column(length: 500)]
+    #[Groups("post:read")]
     private ?string $lien = null;
 
+    #[ORM\Column(length: 255)]
+    #[Groups("post:read")]
+    private ?string $pdfFilename = null;
 
-    public function getId_formation(): ?int
+    #[ORM\OneToMany(targetEntity: "App\Entity\Quiz", mappedBy: "formation")]
+    #[Groups("post:read")]
+    private $quizzes;
+
+    public function __construct()
+    {
+        $this->quizzes = new ArrayCollection();
+    }
+
+    /**
+     * @return Collection|Quiz[]
+     */
+    public function getQuizzes(): Collection
+    {
+        return $this->quizzes;
+    }
+
+    public function addQuiz(Quiz $quiz): self
+    {
+        if (!$this->quizzes->contains($quiz)) {
+            $this->quizzes[] = $quiz;
+            $quiz->setFormation($this);
+        }
+
+        return $this;
+    }
+
+    public function removeQuiz(Quiz $quiz): self
+    {
+        if ($this->quizzes->contains($quiz)) {
+            $this->quizzes->removeElement($quiz);
+            // set the owning side to null (unless already changed)
+            if ($quiz->getFormation() === $this) {
+                $quiz->setFormation(null);
+            }
+        }
+
+        return $this;
+    }
+
+    public function getPdfFilename(): ?string
+    {
+        return $this->pdfFilename;
+    }
+
+    public function setPdfFilename(?string $pdfFilename): self
+    {
+        $this->pdfFilename = $pdfFilename;
+
+        return $this;
+    }
+
+
+    public function getIdformation(): ?int
     {
         return $this->id_formation;
     }
 
-
-    public function getNomNiveau(): ?string
+    public function getNiveau(): ?Niveau
     {
-        return $this->nom_niveau;
+        return $this->niveau;
     }
 
-    public function setNomNiveau(string $nom_niveau): static
+    public function setNiveau(?Niveau $niveau): self
     {
-        $this->nom_niveau = $nom_niveau;
+        $this->niveau = $niveau;
 
         return $this;
     }
