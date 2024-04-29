@@ -12,6 +12,8 @@ use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Regex;
 
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
+
 class RemiseType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options): void
@@ -41,6 +43,13 @@ class RemiseType extends AbstractType
     {
         $resolver->setDefaults([
             'data_class' => Remiseentry::class,
+            'constraints' => [
+                new UniqueEntity([
+                    'fields' => 'code',
+                    'message' => 'This code is already in use.',
+                ]),
+            ],
         ]);
     }
-}
+    }
+

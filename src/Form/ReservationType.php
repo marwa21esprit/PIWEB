@@ -24,7 +24,7 @@ class ReservationType extends AbstractType
         ->add('nbPlaces', IntegerType::class, [
             'label' => 'Number of Places',
             'constraints' => [
-                new NotBlank(['message' => 'Number of places cannot be blank.']),
+                new NotBlank(['message' => ' Number of places cannot be blank.']),
                 new GreaterThan([
                     'value' => 0,
                     'message' => 'Number of places must be greater than 0.',

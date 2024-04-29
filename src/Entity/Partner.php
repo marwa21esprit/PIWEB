@@ -4,7 +4,7 @@ namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
 use App\Repository\PartnerRepository;
-use Symfony\Component\Serializer\Annotation\Groups;
+
 
 
 #[ORM\Entity(repositoryClass: PartnerRepository::class)]
@@ -14,31 +14,26 @@ class Partner
     #[ORM\Id]
     #[ORM\GeneratedValue(strategy: "AUTO")]
     #[ORM\Column(name: "idPartner", type: "integer")]
-    #[Groups(['event:read'])]
+
     private ?int $idpartner;
 
     #[ORM\Column(length :255)]
-    #[Groups(['event:read'])]
     private ?string $namepartner;
 
     #[ORM\Column(length :255)]
-    #[Groups(['event:read'])]
     private ?string $typepartner;
 
     #[ORM\Column(length :255)]
-    #[Groups(['event:read'])]
     private ?string $email;
 
     #[ORM\Column]
-    #[Groups(['event:read'])]
     private ?int $tel;
 
     #[ORM\Column(length :255)]
-    #[Groups(['event:read'])]
     private ?string $description;
 
     #[ORM\Column(length :255)]
-    #[Groups(['event:read'])]
+
     private ?string $image;
 
     public function getIdpartner(): ?int

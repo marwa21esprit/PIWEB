@@ -85,7 +85,8 @@
 
 
         .bill-ticket-number {
-            font-size: 18px;
+
+            font-size: 20px;
         }
 
         .bill-footer {
@@ -101,6 +102,68 @@
         .bill-footer-amount {
             font-size: 20px;
         }
+
+.form-error-message {
+            color: red;
+        }
+        
+       .alert.alert-dan {
+    background-color: transparent;
+    border: none;
+    color: red;
+    font-size: small;
+    font-weight: bold;
+}
+
+
+.ticket-controls {
+    display: flex;
+    align-items: center;
+}
+
+.button-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-left: 10px; /* Adjust margin for spacing */
+}
+
+
+.ticket-control-btn {
+    background-color: transparent;
+    color: #333;
+    border: none;
+    border-radius: 5px;
+    width: 30px;
+    height: 30px;
+    font-size: 15px;
+    cursor: pointer;
+    transition: color 0.3s ease;
+    margin: 0; /* Remove margin between buttons */
+    display: block; /* Display buttons as block elements */
+    text-align: center; /* Center the content horizontally */
+}
+
+/* Additional styles to hide the button outline */
+.ticket-control-btn:focus {
+    outline: none;
+}
+
+.ticket-control-btn::before {
+    content: '';
+}
+
+.ticket-control-btn.increment::before {
+    content: '▲'; /* Arrow pointing up */
+    display: block; /* Display plus sign as block element */
+}
+
+.ticket-control-btn.decrement::before {
+    content: '▼'; /* Arrow pointing down */
+    display: block; /* Display minus sign as block element */
+}
+
+
 
     </style>
 {% endblock %}
@@ -119,7 +182,8 @@
                             <div class="bill-content-left">
                                 <img src="{{ asset('uploads/' ~ reservation.Imagesrc) }}" alt="Event Image" class="bill-event-image">
                                 <div class="bill-event-details">
-                                    <h4 class="bill-event-name">{{ reservation.IdEvent.nameEvent }}</h4>
+
+                                    <h4 class="bill-event-name">{{ reservation.namee }}</h4>
                                     <p class="bill-event-time">{{ reservation.IdEvent.dateevent|date }}</p>
                                 </div>
                             </div>
@@ -129,18 +193,27 @@
                             </div>
                         </div>
                         <div class="bill-content-item">
-                            <div class="bill-content-left">
-                                <p class="bill-ticket-left">Nombre de tickets</p>
-                            </div>
-                            <div class="bill-content-right">
-                                <p class="bill-ticket-number">{{ reservation.NbPlaces }}</p>
-                            </div>
-                        </div>
+
+    <div class="bill-content-right">
+        <p class="bill-ticket-right">Nombre de tickets</p>
+    </div>    
+    <div class="bill-content-left">
+        <div class="ticket-controls">
+            <p class="bill-ticket-number" id="ticketNumber">{{ reservation.NbPlaces }}</p>
+            <div class="button-container">
+                <button type="button" class="ticket-control-btn increment" id="incrementBtn"></button>
+                            <button type="button" class="ticket-control-btn decrement" id="decrementBtn"></button>
+</div>
+        </div>
+    </div>
+</div>
                     </div>
                     <div class="bill-footer">
                         <p class="bill-footer-total">Montant Total:</p>
-                        <p class="bill-footer-amount">{{ reservation.NbPlaces * reservation.Eventprice }} TND</p>
+                        <div id="totalAmount" class="bill-footer-amount">{{ reservation.NbPlaces * reservation.Eventprice }} TND</div>
                     </div>
+                                 <button type="button" class="btn btn-sm btn-danger delete-btn" data-id="{{ reservation.id }}"><i class="la la-trash-o"></i></button>
+
                 </div>
             </div>
             <div class="col-lg-6">
@@ -148,12 +221,13 @@
                     <div class="bill-header">
                         <h3 class="bill-header-title">Payment Details</h3>
                     </div>
-                    <form method="post" novalidate>
+
+                    <form id="payment-form" method="post" novalidate>
                         {{ form_start(f) }}
-                        {% if form_errors(f) %}
-                            <div class="alert alert-danger">
+                         {% if form_errors(f) %}
+                            <div class="alert alert-dan">
                                 {% for error in form_errors(f) %}
-                                    <p style="color: red;">{{ error.message }}</p>
+                                    <p class="form-error-message">{{ error.message }}</p>
                                 {% endfor %}
                             </div>
                         {% endif %}
@@ -175,27 +249,54 @@
                             </div>
                             <div id="collapseOne" class="collapse show" aria-labelledby="headingOne">
                                 <div class="card-body payment-card-body">
-                                    <div class="form-group">
-                                        {{ form_label(f.cardNumber, 'Card Number', {'label_attr': {'class': 'form-label fw-medium'}}) }}
-                                        {{ form_widget(f.cardNumber, {'attr': {'class': 'form-control', 'placeholder': '1234 5678 9012 3456'}}) }}
-                                        {{ form_errors(f.cardNumber) }}
-                                    </div>
+
+                              <div class="form-group">
+                                {{ form_label(f.cardNumber, 'Card Number', {'label_attr': {'class': 'form-label fw-medium'}}) }}
+                                {{ form_widget(f.cardNumber, {'attr': {'class': 'form-control', 'placeholder': '1234 5678 9012 3456'}}) }}
+                                {% if f.cardNumber.vars.errors|length > 0 %}
+                            <div class="alert alert-dan">
+                                {% for error in f.cardNumber.vars.errors %}
+                                    <span>{{ error.message }}</span><br>
+                                {% endfor %}
+                            </div>
+                        {% endif %}</div>
+
                                     <div class="row mt-3 mb-3">
                                         <div class="col-md-6">
                                             {{ form_label(f.expireDate, 'Expiration Date (MM/YYYY)', {'label_attr': {'class': 'form-label fw-medium'}}) }}
                                             {{ form_widget(f.expireDate, {'attr': {'class': 'form-control', 'placeholder': 'MM/YYYY'}}) }}
-                                            {{ form_errors(f.expireDate) }}
-                                        </div>
+
+                                           {% if f.expireDate.vars.errors|length > 0 %}
+                            <div class="alert alert-dan">
+                                {% for error in f.expireDate.vars.errors %}
+                                    <span>{{ error.message }}</span><br>
+                                {% endfor %}
+                            </div>
+                        {% endif %}                                       
+                         </div>
                                         <div class="col-md-6">
                                             {{ form_label(f.cvv, 'CVV', {'label_attr': {'class': 'form-label fw-medium'}}) }}
                                             {{ form_widget(f.cvv, {'attr': {'class': 'form-control', 'placeholder': 'CVV'}}) }}
-                                            {{ form_errors(f.cvv) }}
+                                          {% if f.cvv.vars.errors|length > 0 %}
+                            <div class="alert alert-dan">
+                                {% for error in f.cvv.vars.errors %}
+                                    <span>{{ error.message }}</span><br>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
                                         </div>
                                     </div>
                                     <div class="form-group">
                                         {{ form_label(f.name, 'Cardholder Name', {'label_attr': {'class': 'form-label fw-medium'}}) }}
                                         {{ form_widget(f.name, {'attr': {'class': 'form-control', 'placeholder': 'John Doe'}}) }}
-                                        {{ form_errors(f.name) }}
+
+                                        {% if f.name.vars.errors|length > 0 %}
+                            <div class="alert alert-dan">
+                                {% for error in f.name.vars.errors %}
+                                    <span>{{ error.message }}</span><br>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
                                     </div>
                                     <button type="submit" class="btn btn-primary btn-lg btn-block mt-3 mb-3">Pay Now</button>
                                 </div>
@@ -208,6 +309,158 @@
 
         </div>
     </div>
+
+
+
+   <script>
+  document.addEventListener("DOMContentLoaded", function() {
+    const deleteButtons = document.querySelectorAll('.delete-btn');
+
+    deleteButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const id = this.getAttribute('data-id');
+            const confirmation = confirm('Are you sure you want to delete this reservation?');
+
+            if (confirmation) {
+                deleteReservation(id);
+            }
+        });
+    });
+
+    function deleteReservation(id) {
+        fetch(`/reservation/delete/${id}`, {
+            method: 'DELETE'
+        })
+        .then(response => {
+            if (response.ok) {
+                alert('Reservation deleted successfully');
+                window.location.href = "{{ path('app_event') }}"; // Redirect to event page
+            } else {
+                alert('Failed to delete reservation');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('An error occurred while deleting the reservation');
+        });
+    }
+});
+    // Get elements
+    var decrementBtn = document.getElementById('decrementBtn');
+    var incrementBtn = document.getElementById('incrementBtn');
+    var ticketNumberElement = document.getElementById('ticketNumber');
+    var ticketNumber = parseInt(ticketNumberElement.textContent); // Parse the initial value
+    var reservationId = {{ reservation.id }}; // Get the reservation ID from Twig
+    var eventPrice = {{ reservation.Eventprice }}; // Get the event price from Twig
+
+    // Function to update total amount
+    function updateTotalAmount() {
+        var totalAmount = ticketNumber * eventPrice;
+        document.getElementById('totalAmount').textContent = totalAmount + ' TND';
+    }
+
+    // Function to make AJAX request to update number of places in the database
+    function updateNbPlaces(newNbPlaces) {
+        console.log("Updating number of places to: " + newNbPlaces); // Log the new number of places
+
+        fetch('/update-nb-places', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                reservationId: reservationId,
+                newNbPlaces: newNbPlaces, // Send the new number of places
+            }),
+        })
+        .then(response => response.json())
+        .then(data => {
+            // Update the total amount displayed based on the response
+            console.log("Updated total amount: " + data.updatedTotalAmount); // Log the updated total amount
+            document.getElementById('totalAmount').textContent = data.updatedTotalAmount + ' TND';
+        })
+        .catch(error => {
+            console.error('Error:', error);
+        });
+    }
+
+    // Decrement function
+    decrementBtn.addEventListener('click', function() {
+        if (ticketNumber > 1) { // Ensure ticket number doesn't go below 1
+            ticketNumber--;
+            ticketNumberElement.textContent = ticketNumber;
+            updateTotalAmount(); // Update total amount
+
+            // Log a message to check if decrement event listener is triggered
+            console.log("Decrement button clicked. New ticket number: " + ticketNumber);
+
+            // Make AJAX request to update number of places in the database
+            updateNbPlaces(ticketNumber);
+        }
+    });
+
+    // Increment function
+    incrementBtn.addEventListener('click', function() {
+        ticketNumber++;
+        ticketNumberElement.textContent = ticketNumber;
+        updateTotalAmount(); // Update total amount
+
+        // Log a message to check if increment event listener is triggered
+        console.log("Increment button clicked. New ticket number: " + ticketNumber);
+
+        // Make AJAX request to update number of places in the database
+        updateNbPlaces(ticketNumber);
+    });
+
+    // Initial update of total amount
+    updateTotalAmount();
+</script>
+
+<script>
+    var stripe = Stripe(' pk_test_51Oo7aQLjJljsz2MFEbg6cYMpsTqNRdyo57m0Gpp8uwKoYe9a7bSvoFYgxiRRbaHtquozdxyNLEoaYZGdBArUeMPp00ppq7ZifZ }}');
+    var elements = stripe.elements();
+    var card = elements.create('card');
+    card.mount('#card-element');
+    
+    var form = document.getElementById('payment-form');
+    
+    form.addEventListener('submit', function(event) {
+        event.preventDefault();
+    
+        stripe.createPaymentMethod({
+            type: 'card',
+            card: card,
+            billing_details: {
+                name: form.name.value
+            }
+        }).then(function(result) {
+            if (result.error) {
+                console.log(result.error.message);
+            } else {
+                stripeTokenHandler(result.paymentMethod);
+            }
+        });
+    });
+    
+    function stripeTokenHandler(paymentMethod) {
+        var hiddenInputs = [
+            { name: 'payment_method_id', value: paymentMethod.id },
+            { name: 'amount', value: {{ reservation.NbPlaces * reservation.Eventprice }} }
+            // Add other necessary fields here
+        ];
+    
+        hiddenInputs.forEach(function(input) {
+            var hiddenInput = document.createElement('input');
+            hiddenInput.setAttribute('type', 'hidden');
+            hiddenInput.setAttribute('name', input.name);
+            hiddenInput.setAttribute('value', input.value);
+            form.appendChild(hiddenInput);
+        });
+    
+        // Submit the form
+        form.submit();
+    }
+</script>
 
 {% endblock %}
 

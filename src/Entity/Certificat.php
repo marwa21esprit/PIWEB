@@ -2,10 +2,10 @@
 
 namespace App\Entity;
 
-use Doctrine\DBAL\Types\Types;
-use Doctrine\ORM\Mapping as ORM;
 
 use DateTime;
+use Doctrine\DBAL\Types\Types;
+use Doctrine\ORM\Mapping as ORM;
 use App\Repository\CertificatRepository;
 use Symfony\Component\Validator\Constraints as Assert;
 
@@ -30,7 +30,13 @@ class Certificat
     private ?string $niveau;
 
     #[ORM\Column(type: "datetime")]
-    #[Assert\LessThan("today", message: "The date of obtaining the certificate must be less than today")]
+
+    #[Assert\NotBlank(message: "La date de l'événement ne doit pas être vide.")]
+    #[Assert\GreaterThan("today", message: "La date de l'événement doit être ultérieure à la date actuelle.")]
+    #[Assert\Type(type: "\DateTimeInterface", message: "La date de l'événement doit être de type date.")]
+
+    #[Assert\LessThan("today", message: "The date of delivration the certificate must be less than today")]
+
     private ?DateTime $dateObtentionCertificat;
 
 

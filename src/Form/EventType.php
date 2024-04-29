@@ -2,7 +2,7 @@
 
 namespace App\Form;
 
-use App\Entity\Etablissement;
+
 use App\Entity\Event;
 use App\Entity\Partner;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
@@ -28,11 +28,8 @@ class EventType extends AbstractType
                 'choice_label' => 'namepartner',
                 'label' => 'Nom du partenaire :'
             ])
-            ->add('idestab', EntityType::class, [
-                'class' => Etablissement::class,
-                'choice_label' => 'nomEtablissement',
-                'placeholder' => 'Select an etablissement',
-            ])
+
+            ->add('idestab')
             ->add('nameevent')
             ->add('dateevent', DateType::class, [
                 'widget' => 'single_text',
@@ -42,15 +39,9 @@ class EventType extends AbstractType
                     'month' => 'MM',
                     'day' => 'DD',
                 ],
-                'empty_data' => function ($form) {
-                    $entity = $form->getData();
-                    if ($entity && $entity->getDateObtentionCertificat() !== null) {
-                        return $entity->getDateObtentionCertificat()->format('Y-m-d');
-                    } else {
-                        return date('Y-m-d');
-                    }
-                },
-                ])
+
+                'data' => new \DateTime(),
+            ])
             ->add('nbrmax')
             ->add('prix')
             ->add('description', TextareaType::class)

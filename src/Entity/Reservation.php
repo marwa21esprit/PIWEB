@@ -1,96 +1,46 @@
-<?php
 
+<?php 
 namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
+use App\Repository\ReservationRepository;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\Collections\ArrayCollection;
-/**
- * Reservation
- *
- * @ORM\Table(name="reservation", indexes={@ORM\Index(name="fk_user", columns={"id_user"}), @ORM\Index(name="fk_event", columns={"id_event"})})
- * @ORM\Entity(repositoryClass=App\Repository\ReservationRepository::class)
- */
+
+#[ORM\Entity(repositoryClass: "App\Repository\ReservationRepository")]
 class Reservation
 {
-    /**
-     * @var int
-     *
-     * @ORM\Column(name="id", type="integer", nullable=false)
-     * @ORM\Id
-     * @ORM\GeneratedValue(strategy="IDENTITY")
-     */
+    #[ORM\Id]
+    #[ORM\GeneratedValue(strategy: "AUTO")]
+    #[ORM\Column(name: "id", type: "integer", nullable: false)]
     private $id;
 
-    /**
-     * @var string|null
-     *
-     * @ORM\Column(name="name", type="string", length=100, nullable=true)
-     */
+    #[ORM\Column(name: "name", type: "string", length: 100, nullable: true)]
     private $name;
 
-    /**
-     * @var string|null
-     *
-     * @ORM\Column(name="email", type="string", length=100, nullable=true)
-     */
+    #[ORM\Column(name: "email", type: "string", length: 100, nullable: true)]
     private $email;
 
-    /**
-     * @var int
-     *
-     * @ORM\Column(name="nb_places", type="integer", nullable=false)
-     */
+    #[ORM\Column(name: "nb_places", type: "integer", nullable: false)]
     private $nbPlaces;
 
-    /**
-     * @var string|null
-     *
-     * @ORM\Column(name="imageSrc", type="string", length=100, nullable=true)
-     */
+    #[ORM\Column(name: "imageSrc", type: "string", length: 100, nullable: true)]
     private $imagesrc;
 
-    /**
-     * @var string|null
-     *
-     * @ORM\Column(name="nameE", type="string", length=100, nullable=true)
-     */
+    #[ORM\Column(name: "nameE", type: "string", length: 100, nullable: true)]
     private $namee;
 
-    /**
-     * @var float|null
-     *
-     * @ORM\Column(name="eventPrice", type="float", precision=10, scale=0, nullable=true)
-     */
+    #[ORM\Column(name: "eventPrice", type: "float", nullable: true)]
     private $eventprice;
 
-    /**
-     * @var \Event
-     *
-     * @ORM\ManyToOne(targetEntity="Event")
-     * @ORM\JoinColumns({
-     *   @ORM\JoinColumn(name="id_event", referencedColumnName="idEvent")
-     * })
-     */
-    private $idEvent;
-
-    /**
-     * @var \User
-     *
-     * @ORM\ManyToOne(targetEntity="User")
-     * @ORM\JoinColumns({
-     *   @ORM\JoinColumn(name="id_user", referencedColumnName="id")
-     * })
-     */
+    #[ORM\ManyToOne(targetEntity: "User")]
+    #[ORM\JoinColumn(name: "id_user", referencedColumnName: "id")]
     private $idUser;
-/**
-     * @var ArrayCollection
-     *
-     * @ORM\OneToMany(targetEntity="Paiement", mappedBy="idRes")
-     */
-    private $paiements;
 
-
+    #[ORM\ManyToOne(targetEntity: "Event")]
+    #[ORM\JoinColumn(name: "id_event", referencedColumnName: "idEvent")]
+    private $idEvent;
 
 
     private ?Paiement $paiement =null;
@@ -213,10 +163,7 @@ class Reservation
     {
         $this->paiement = $paiement;
     }
-    
-    /**
-     * @return Collection|Paiement[]
-     */
+
     public function getPaiements(): Collection
     {
         return $this->paiements;

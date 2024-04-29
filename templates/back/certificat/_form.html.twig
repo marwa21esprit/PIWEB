@@ -1,4 +1,5 @@
-{{ form_start(form,{'attr': {'novalidate': 'novalidate'}} ) }}
+
+{{ form_start (form, {'attr': {'novalidate': 'novalidate'}})}}
 
 <div class="row">
     <div class="col-md-6">
@@ -17,31 +18,18 @@
             {{ form_widget(form.niveau, {'attr': {'class': 'form-control'}}) }}
             {{ form_errors(form.niveau) }}
         </div>
-        {{ form_label(form.dateObtentionCertificat, 'Obtention Date', {'label_attr': {'class': 'form-label'}}) }}
-        {# Customize classes for the date and time selection fields #}
-        <div class="row">
-            <div class="col-md-4">
-                {{ form_widget(form.dateObtentionCertificat.date.month, {'attr': {'class': 'form-control'}}) }}
-            </div>
-            <div class="col-md-4">
-                {{ form_widget(form.dateObtentionCertificat.date.day, {'attr': {'class': 'form-control'}}) }}
-            </div>
-            <div class="col-md-4">
-                {{ form_widget(form.dateObtentionCertificat.date.year, {'attr': {'class': 'form-control'}}) }}
-            </div>
-        </div>
-        <div class="row mt-2">
-            <div class="col-md-6">
-                {{ form_widget(form.dateObtentionCertificat.time.hour, {'attr': {'class': 'form-control'}}) }}
-            </div>
-            <div class="col-md-6">
-                {{ form_widget(form.dateObtentionCertificat.time.minute, {'attr': {'class': 'form-control'}}) }}
-            </div>
-        </div>
+
+        <div class="form-group">
+            {{ form_label(form.dateObtentionCertificat, 'Foundation Date') }}
+            {{ form_widget(form.dateObtentionCertificat, {'attr': {'class': 'form-control datepicker-default', 'id': 'datepicker'}}) }}
+            {{ form_errors(form.dateObtentionCertificat) }}
+
+            {{ form_label(form.dateObtentionCertificat, 'Delivration Date') }}
+            {{ form_widget(form.dateObtentionCertificat, {'attr': {'class': 'form-control datepicker-default', 'id': 'datepicker'}}) }}
             <div class="error-message">
                 {{ form_errors(form.dateObtentionCertificat) }}
-         </div>
-
+            </div>
+        </div>
 
         <div class="form-group">
             <label for="{{ form.idEtablissement.vars.id }}" class="form-label">Etablissement</label>

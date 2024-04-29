@@ -17,7 +17,8 @@
             height: 100vh;
             display: grid;
             font-family: "Staatliches", cursive;
-            background: #d83565;
+
+            background: #FFFFFF;
             color: black;
             font-size: 14px;
             letter-spacing: 0.1em;
@@ -194,6 +195,21 @@
             color: gray;
         }
 
+
+
+        .form-error-message {
+            color: red;
+        }
+        
+        .alert.alert-dan {
+    background-color: transparent;
+    border: none;
+    color: red;
+    font-size: small;
+    font-weight: bold;
+}
+
+
     </style>
 {% endblock %}
 
@@ -226,8 +242,9 @@
                     <p>8:00 PM <span>TO</span> 11:00 PM</p>
                     <p>DOORS <span>@</span> 7:00 PM</p>
                 </div>
-                <p class="location"><span>East High School</span>
-                    <span class="separator"><i class="far fa-smile"></i></span><span>Salt Lake City, Utah</span>
+
+                <p class="location"><span>Tanit Online</span>
+                    <span class="separator"><i class="far fa-smile"></i></span><span>Tunisia, Ariana</span>
                 </p>
             </div>
         </div>
@@ -256,14 +273,15 @@
     <div class="container-xxl py-5">
         <div class="row justify-content-center mt-5">
             <div class="col-md-8">
-                <h2 class="fw-medium">Add Reservation</h2>
+
                 <form method="post" novalidate>
                     {{ form_start(f) }}
                     <div class="mb-3">
                         {{ form_label(f.nbPlaces, 'Number of Places', {'label_attr': {'class': 'form-label fw-medium'}}) }}
                         {{ form_widget(f.nbPlaces, {'attr': {'class': 'form-control'}}) }}
                         {% if f.nbPlaces.vars.errors|length > 0 %}
-                            <div class="alert alert-danger">
+
+                            <div class="alert alert-dan">
                                 {% for error in f.nbPlaces.vars.errors %}
                                     <span>{{ error.message }}</span><br>
                                 {% endfor %}

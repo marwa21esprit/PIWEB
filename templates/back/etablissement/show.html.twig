@@ -58,6 +58,9 @@
                         <div class="mt-3">
                             <a href="{{ path('app_etablissement_index_admin') }}" class="btn btn-secondary">Retour</a>
                             <a href="{{ path('app_etablissement_edit', {'id': etablissement.idEtablissement}) }}" class="btn btn-primary">Modifier</a>
+
+                            <a href="{{ path('app_etablissement_index_admin') }}" class="btn btn-secondary">Back</a>
+                            <a href="{{ path('app_etablissement_edit', {'id': etablissement.idEtablissement}) }}" class="btn btn-primary">Edit</a>
                         </div>
 
                         {{ include('back/etablissement/_delete_form.html.twig') }}

@@ -2,48 +2,27 @@
 
 namespace App\Entity;
 
-use Doctrine\DBAL\Types\Types;
-use Doctrine\ORM\Mapping as ORM;
 
-/**
- * Paiement
- *
- * @ORM\Table(name="paiement", indexes={@ORM\Index(name="id_res", columns={"id_res"})})
- * @ORM\Entity(repositoryClass=App\Repository\PaiementRepository::class)
- */
+use Doctrine\ORM\Mapping as ORM;
+use App\Repository\PaiementRepository;
+use Doctrine\DBAL\Types\Types;
+
+#[ORM\Entity(repositoryClass: "App\Repository\PaiementRepository")]
 class Paiement
 {
-    /**
-     * @var int
-     *
-     * @ORM\Column(name="id", type="integer", nullable=false)
-     * @ORM\Id
-     * @ORM\GeneratedValue(strategy="IDENTITY")
-     */
+    #[ORM\Id]
+    #[ORM\GeneratedValue(strategy: "IDENTITY")]
+    #[ORM\Column(name: "id", type: "integer", nullable: false)]
     private $id;
 
-    /**
-     * @var float
-     *
-     * @ORM\Column(name="montant", type="float", precision=10, scale=0, nullable=false)
-     */
+    #[ORM\Column(name: "montant", type: "float", precision: 10, scale: 0, nullable: false)]
     private $montant;
 
-    /**
-     * @var \DateTime
-     *
-     * @ORM\Column(name="heure_P", type="datetime", nullable=false)
-     */
+    #[ORM\Column(name: "heure_P", type: "datetime", nullable: false)]
     private $heureP;
 
-    /**
-     * @var \Reservation
-     *
-     * @ORM\ManyToOne(targetEntity="Reservation")
-     * @ORM\JoinColumns({
-     *   @ORM\JoinColumn(name="id_res", referencedColumnName="id")
-     * })
-     */
+    #[ORM\ManyToOne(targetEntity: "Reservation")]
+    #[ORM\JoinColumn(name: "id_res", referencedColumnName: "id")]
     private $idRes;
 
     public function getId(): ?int

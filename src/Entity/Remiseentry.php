@@ -3,36 +3,23 @@
 namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
+use App\Repository\RemiseRepository;
+use Doctrine\DBAL\Types\Types;
 
-/**
- * Remiseentry
- *
- * @ORM\Table(name="remiseentry")
- * @ORM\Entity(repositoryClass=App\Repository\RemiseRepository::class)
- */
+
+#[ORM\Table(name: "remiseentry")]
+#[ORM\Entity(repositoryClass: "App\Repository\RemiseRepository")]
 class Remiseentry
 {
-    /**
-     * @var int
-     *
-     * @ORM\Column(name="id", type="integer", nullable=false)
-     * @ORM\Id
-     * @ORM\GeneratedValue(strategy="IDENTITY")
-     */
+    #[ORM\Id]
+    #[ORM\GeneratedValue(strategy: "AUTO")]
+    #[ORM\Column(name: "id", type: "integer", nullable: false)]
     private $id;
 
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="code", type="string", length=10, nullable=false)
-     */
+    #[ORM\Column(name: "code", type: "string", length: 10, nullable: false)]
     private $code;
 
-    /**
-     * @var float
-     *
-     * @ORM\Column(name="pourcentage", type="float", precision=10, scale=0, nullable=false)
-     */
+    #[ORM\Column(name: "pourcentage", type: "float", nullable: false)]
     private $pourcentage;
 
     public function getId(): ?int

@@ -1,5 +1,23 @@
 {% extends '/back/gestion.html.twig' %}
 
+
+
+{% block stylesheets %}
+
+    <style>
+
+ .alert.alert-dan {
+    background-color: transparent;
+    border: none;
+    color: red;
+    font-size: small;
+    font-weight: bold;
+}
+
+
+    </style>
+{% endblock %}
+
 {% block body %}
 
 
@@ -39,7 +57,8 @@
                                 {{ form_label (f.code, 'Code\'s value', {'label_attr': {'class': 'form-label'}})}}
                                 {{ form_widget (f.code, {'attr': {'class': 'form-control'}})}}
                                  {% if f.code.vars.errors|length > 0 %}
-                            <div class="alert alert-danger">
+
+                            <div class="alert alert-dan">
                                 {% for error in f.code.vars.errors %}
                                     <span>{{ error.message }}</span><br>
                                 {% endfor %}
@@ -52,7 +71,8 @@
                                 {{ form_label (f.pourcentage, 'Pourcentage\'s value', {'label_attr': {'class': 'form-label'}})}}
                                 {{ form_widget (f.pourcentage, {'attr': {'class': 'form-control'}})}}
                                  {% if f.pourcentage.vars.errors|length > 0 %}
-                            <div class="alert alert-danger">
+
+                            <div class="alert alert-dan">
                                 {% for error in f.pourcentage.vars.errors %}
                                     <span>{{ error.message }}</span><br>
                                 {% endfor %}

@@ -1,4 +1,4 @@
-{% extends '/front/gestion.html.twig' %}
+{% extends '/back/gestion.html.twig' %}
 
 {% block stylesheets %}
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
@@ -116,7 +116,7 @@
             color: #d83565;
         }
 
-        .show-nameUSER h1 {
+ .show-nameUSER h1 {
             font-size: 20px;
             font-family: "Nanum Pen Script", cursive;
             color: #4a437e;
@@ -152,6 +152,7 @@
         .left .time {
             font-size: 16px;
         }
+
 
         .location {
             display: flex;
@@ -204,85 +205,129 @@
             color: gray;
         }
 
+
         .form-error-message {
             color: red;
         }
         
         .alert.alert-dan {
-            background-color: transparent;
-            border: none;
-            color: red;
-            font-size: small;
-            font-weight: bold;
-        }
+    background-color: transparent;
+    border: none;
+    color: red;
+    font-size: small;
+    font-weight: bold;
+}
+
     </style>
 {% endblock %}
-
-{% block ticket %}
- <!-- Ajouter les liens vers les fichiers CSS et JavaScript d'AddToAny -->
-    <link rel="stylesheet" type="text/css" href="//static.addtoany.com/menu/page.css">
-    <script async src="//static.addtoany.com/menu/page.js"></script>
-    <div class="spacer">
-    <a href="{{ path('app_event') }}" class="btn btn-primary back-btn" style="position: absolute; top: 100px; left: 20px;">
+{% block body %}
+     <div class="container">
+        <div class="spacer">
+            <a href="{{ path('back') }}" class="btn btn-primary back-btn" >
         <i class="fas fa-arrow-left"></i> <!-- Assuming you're using Font Awesome for icons -->
-    </a></div>
-
-
-    <div class="spacer"></div>
-        <div class="spacer"></div>
-
-    <div class="ticket created-by-anniedotexe"> <!-- Add ID here -->
-        <div class="left">
-        
-            <div class="image" style="background-image: url('{{ asset('uploads/' ~ event.image) }}');">
+    </a>
+        </div>
+        <div class="ticket created-by-anniedotexe">
+            <div class="left">
+                <div class="image" style="background-image: url('{{ asset('uploads/' ~ reservation.Imagesrc) }}');">
+                    <p class="admit-one">
+                        <span>ADMIT ONE</span>
+                        <span>ADMIT ONE</span>
+                        <span>ADMIT ONE</span>
+                    </p>
+                    <div class="ticket-number">
+                        <p>#{{ reservation.id }}</p>
+                    </div>
+                    <div class="show-nameUSER">
+                        <H1>Reserved by : <strong>{{ reservation.IdUser.name ?? 'Unknown User' }}</strong></h1>
+                        <p>AT: {{ paiement.heureP | date('Y-m-d H:i:s') }}</p> <!-- Display heureP here -->
+                        <p>Montant Total: {{ reservation.NbPlaces * reservation.Eventprice }} TND</p>
+                    </div>
+                </div>
+                <div class="ticket-info">
+                    <p class="date">
+                        <span>{{ reservation.IdEvent.dateevent|date('l') }}</span>
+                        <span class="june-29">{{ reservation.IdEvent.dateevent|date('F jS') }}</span>
+                        <span>{{ reservation.IdEvent.dateevent|date('Y') }}</span>
+                    </p>
+                    <div class="show-name">
+                        <h1>EVENT</h1>
+                        <h2>{{ reservation.namee }}</h2>
+                    </div>
+                    <div class="time">
+                        <p>8:00 PM <span>TO</span> 11:00 PM</p>
+                        <p>DOORS <span>@</span> 7:00 PM</p>
+                        <p>Reserved Places <span>:</span> {{ reservation.nbPlaces }}</p>
+                    </div>
+                    <p class="location">
+                        <span>Tanit Online</span>
+                        <span class="separator"><i class="far fa-smile"></i></span>
+                        <span>Tunisia, Ariana</span>
+                    </p>
+                </div>
             </div>
-            <div class="ticket-info">
-                <p class="date">
-                    <span>{{ event.dateevent|date('l') }}</span>
-                    <span class="june-29">{{ event.dateevent|date('F jS') }}</span>
-                    <span>{{ event.dateevent|date('Y') }}</span>
+            <div class="right">
+                <p class="admit-one">
+                    <span>ADMIT ONE</span>
+                    <span>ADMIT ONE</span>
+                    <span>ADMIT ONE</span>
                 </p>
-                <div class="show-name">
-                    <h1>{{ event.nameevent }}</h1>
+                <div class="right-info-container">
+                    <div class="show-name">
+                        <h1>SOUR Prom</h1>
+                    </div>
+                    <div class="time">
+                        <p>8:00 PM <span>TO</span> 11:00 PM</p>
+                        <p>DOORS <span>@</span> 7:00 PM</p>
+                    </div>
+                    <div class="barcode">
+                        <img src="{{ qrCodeUrl }}" alt="QR code">
+                    </div>
+                    <p class="ticket-number">#20030220</p>
                 </div>
-                <div class="show-nameUSER">
-                    <h1>Max Participants: <strong>{{ event.nbrmax }}</strong></h1>
-                    <h1>Price Per Person: <strong>{{ event.prix }} TND</strong></h1>
-                    <h1>Description: <strong>{{ event.description }}</strong></h1>
-                </div>
-                    
             </div>
         </div>
-        <div class="right">
+    </div>
+
+
+
+   <script>
+function generatePDF(reservationId) {
+    // Make an AJAX request to generate the PDF
+    var pdfUrl = '/reservation/' + reservationId + '/pdf';
+    var xhr = new XMLHttpRequest();
+    xhr.open('GET', pdfUrl, true);
+    xhr.responseType = 'blob'; // Set response type to blob
+    xhr.onload = function () {
+        if (xhr.status === 200) {
+            // Create a blob URL from the response data
+            var blob = new Blob([xhr.response], { type: 'application/pdf' });
+            var pdfUrl = window.URL.createObjectURL(blob);
             
-            <div class="right-info-container">
-                <div class="barcode">
-                    <img src="{{ qrCodeUrl }}" alt="QR code">
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-<h1>Page à partager</h1>
-<p>Contenu de votre page.</p>
-<!-- Ajouter le code de partage d'AddToAny -->
-    <div class="a2a_kit a2a_kit_size_32 a2a_default_style">
-        <a class="a2a_dd" href="https://www.addtoany.com/share" data-a2a-title="Votre texte par défaut">
-            <img src="{{ asset('icons/social media/plus.png') }}" alt="Share">
-        </a>
-        <a href="https://www.facebook.com/sharer/sharer.php?u=http://192.168.1.18:8000/partner/&quote=bonjour">
-            <img src="{{ asset('icons/social media/facebook.png') }}" alt="Facebook">
-        </a>
-        <a href="https://twitter.com/intent/tweet?url=http://192.168.1.18:8000/partner/&text=bonjour">
-            <img src="{{ asset('icons/social media/twitter.png') }}" alt="Twitter">
-        </a>
-        <a href="https://www.linkedin.com/sharing/share-offsite/?url=http://192.168.1.18:8000/partner/&summary=bonjour">
-            <img src="{{ asset('icons/social media/linkedin.png') }}" alt="Linkedin">
-        </a>
-        <!-- Ajoutez d'autres boutons de réseaux sociaux selon vos besoins -->
-    </div>
-    <script>
-        // Initialisation d'AddToAny
-        addtoany.init();
-    </script>
+            // Dynamically generate QR code image
+            var qrCodeUrl = '/reservation/' + reservationId + '/generate-qr';
+            var qrCodeImg = document.createElement('img');
+            qrCodeImg.src = qrCodeUrl;
+            qrCodeImg.alt = 'QR code';
+            
+            // Append QR code image to the barcode element inside the ticket
+            var ticket = document.querySelector('.ticket.created-by-anniedotexe');
+            var barcodeDiv = ticket.querySelector('.barcode');
+            barcodeDiv.appendChild(qrCodeImg);
+
+            // Create a link element and click it to trigger download
+            var a = document.createElement('a');
+            a.href = pdfUrl;
+            a.download = 'reservation_' + reservationId + '.pdf'; // Set the file name
+            document.body.appendChild(a);
+            a.click();
+
+            // Clean up by revoking object URLs
+            window.URL.revokeObjectURL(pdfUrl);
+        }
+    };
+    xhr.send();
+}
+</script>
+
 {% endblock %}
