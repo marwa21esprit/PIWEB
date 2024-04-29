@@ -1,0 +1,38 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Certificat{% endblock %}
+
+{% block body %}
+    <h1>Certificat</h1>
+
+    <table class="table">
+        <tbody>
+            <tr>
+                <th>IdCertificat</th>
+                <td>{{ certificat.idCertificat }}</td>
+            </tr>
+            <tr>
+                <th>NomCertificat</th>
+                <td>{{ certificat.nomCertificat }}</td>
+            </tr>
+            <tr>
+                <th>DomaineCertificat</th>
+                <td>{{ certificat.domaineCertificat }}</td>
+            </tr>
+            <tr>
+                <th>Niveau</th>
+                <td>{{ certificat.niveau }}</td>
+            </tr>
+            <tr>
+                <th>DateObtentionCertificat</th>
+                <td>{{ certificat.dateObtentionCertificat ? certificat.dateObtentionCertificat|date('Y-m-d H:i:s') : '' }}</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <a href="{{ path('app_certificat_index') }}">back to list</a>
+
+    <a href="{{ path('app_certificat_edit', {'idCertificat': certificat.idCertificat}) }}">edit</a>
+
+    {{ include('certificat/_delete_form.html.twig') }}
+{% endblock %}

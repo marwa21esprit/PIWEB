@@ -10,6 +10,8 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Mailer\MailerInterface;
+use Symfony\Component\Mime\Email;
 
 #[Route('/participation1')]
 class Participation1Controller extends AbstractController
@@ -17,7 +19,7 @@ class Participation1Controller extends AbstractController
     #[Route('/', name: 'app_participation1_index', methods: ['GET'])]
     public function index(Participation1Repository $participation1Repository): Response
     {
-        return $this->render('participation1/index.html.twig', [
+        return $this->render('back/participation1/index.html.twig', [
             'participation1s' => $participation1Repository->findAll(),
         ]);
     }
@@ -35,22 +37,34 @@ class Participation1Controller extends AbstractController
 
             return $this->redirectToRoute('app_participation1_index', [], Response::HTTP_SEE_OTHER);
         }
+       
 
-        return $this->renderForm('participation1/new.html.twig', [
+        return $this->renderForm('front/participation1/new.html.twig', [
             'participation1' => $participation1,
             'form' => $form,
         ]);
     }
 
+    #[Route('/participations', name: 'app_participation_back', methods: ['GET'])]
+    public function back(Participation1Repository $participation1Repository): Response
+    {
+
+        return $this->render('back/participation1/showBack.html.twig', [
+            'participation1s' => $participation1Repository->findAll(),
+        ]);
+       
+    }
+
     #[Route('/{id}', name: 'app_participation1_show', methods: ['GET'])]
     public function show(Participation1 $participation1): Response
     {
-        return $this->render('participation1/show.html.twig', [
+        return $this->render('back/participation1/show.html.twig', [
             'participation1' => $participation1,
         ]);
     }
+   
 
-    #[Route('/{id}/edit', name: 'app_participation1_edit', methods: ['GET', 'POST'])]
+    #[Route('/edit/{id}', name: 'app_participation1_edit', methods: ['GET', 'POST'])]
     public function edit(Request $request, Participation1 $participation1, EntityManagerInterface $entityManager): Response
     {
         $form = $this->createForm(Participation1Type::class, $participation1);
@@ -62,13 +76,13 @@ class Participation1Controller extends AbstractController
             return $this->redirectToRoute('app_participation1_index', [], Response::HTTP_SEE_OTHER);
         }
 
-        return $this->renderForm('participation1/edit.html.twig', [
+        return $this->renderForm('back/participation1/edit.html.twig', [
             'participation1' => $participation1,
             'form' => $form,
         ]);
     }
 
-    #[Route('/{id}', name: 'app_participation1_delete', methods: ['POST'])]
+    #[Route('/delete/{id}', name: 'app_participation1_delete', methods: ['POST'])]
     public function delete(Request $request, Participation1 $participation1, EntityManagerInterface $entityManager): Response
     {
         if ($this->isCsrfTokenValid('delete'.$participation1->getId(), $request->request->get('_token'))) {

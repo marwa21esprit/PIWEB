@@ -28,7 +28,6 @@ class Participation1Type extends AbstractType
             'attr' => ['class' => 'form-control'],
         ])
             ->add('startdate')
-            ->add('enddate')
             ->add('participationstatus',ChoiceType::class, [
                 'choices' => [
                     'New' => 'New',

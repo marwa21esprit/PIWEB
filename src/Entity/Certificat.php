@@ -2,10 +2,12 @@
 
 namespace App\Entity;
 
-use Doctrine\DBAL\Types\Types;
-use Doctrine\ORM\Mapping as ORM;
-
 use DateTime;
+use Doctrine\DBAL\Types\Types;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
+use App\Entity\Niveau;
+use Doctrine\ORM\Mapping as ORM;
 use App\Repository\CertificatRepository;
 use Symfony\Component\Validator\Constraints as Assert;
 
@@ -15,7 +17,7 @@ class Certificat
 {
     #[ORM\Id]
     #[ORM\GeneratedValue(strategy: "AUTO")]
-    #[ORM\Column(type: "integer")]
+    #[ORM\Column(name: "id_certificat", type: "integer")]
     private ?int $idCertificat = null;
 
 
@@ -30,7 +32,9 @@ class Certificat
     private ?string $niveau;
 
     #[ORM\Column(type: "datetime")]
-    #[Assert\LessThan("today", message: "The date of obtaining the certificate must be less than today")]
+    #[Assert\NotBlank(message: "La date de l'événement ne doit pas être vide.")]
+    #[Assert\GreaterThan("today", message: "La date de l'événement doit être ultérieure à la date actuelle.")]
+    #[Assert\Type(type: "\DateTimeInterface", message: "La date de l'événement doit être de type date.")]
     private ?DateTime $dateObtentionCertificat;
 
 
@@ -38,6 +42,15 @@ class Certificat
    #[ORM\JoinColumn(name:"ID_Etablissement", referencedColumnName:"ID_Etablissement")]
     private $idEtablissement;
 
+    /**
+     * @ORM\OneToMany(targetEntity=Niveau::class, mappedBy="certificat")
+     */
+    private Collection $niveaux;
+
+    public function __construct()
+    {
+        $this->niveaux = new ArrayCollection();
+    }
 
     public function getIdCertificat(): ?int
     {
@@ -103,6 +116,8 @@ class Certificat
 
         return $this;
     }
+
+
 
 
 }

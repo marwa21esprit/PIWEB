@@ -3,6 +3,7 @@
 namespace App\Entity;
 
 use App\Repository\FeedbackRepository;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: FeedbackRepository::class)]
@@ -22,6 +23,11 @@ class Feedback
     #[ORM\Column(length: 255)]
     private ?string $comment = null;
 
+    #[ORM\Column]
+    private ?int $rating = null;
+
+    
+    
     public function getId(): ?int
     {
         return $this->id;
@@ -62,4 +68,18 @@ class Feedback
 
         return $this;
     }
+
+    public function getRating(): ?int
+    {
+        return $this->rating;
+    }
+
+    public function setRating(int $rating): static
+    {
+        $this->rating = $rating;
+
+        return $this;
+    }
+
+  
 }

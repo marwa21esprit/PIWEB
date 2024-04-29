@@ -1,0 +1,53 @@
+{{ form_start(form) }}
+
+<div class="row">
+    <div class="col-md-6">
+        <div class="form-group">
+            <label for="{{ form.nomCertificat.vars.id }}" class="form-label">Name</label>
+            {{ form_widget(form.nomCertificat, {'attr': {'class': 'form-control'}}) }}
+            {{ form_errors(form.nomCertificat) }}
+        </div>
+        <div class="form-group">
+            <label for="{{ form.domaineCertificat.vars.id }}" class="form-label">Domain</label>
+            {{ form_widget(form.domaineCertificat, {'attr': {'class': 'form-control'}}) }}
+            {{ form_errors(form.domaineCertificat) }}
+        </div>
+        <div class="form-group">
+            <label for="{{ form.niveau.vars.id }}" class="form-label">Level</label>
+            {{ form_widget(form.niveau, {'attr': {'class': 'form-control'}}) }}
+            {{ form_errors(form.niveau) }}
+        </div>
+        {{ form_label(form.dateObtentionCertificat, 'Obtention Date', {'label_attr': {'class': 'form-label'}}) }}
+        {# Customize classes for the date and time selection fields #}
+        <div class="row">
+            <div class="col-md-4">
+                {{ form_widget(form.dateObtentionCertificat.date.month, {'attr': {'class': 'form-control'}}) }}
+            </div>
+            <div class="col-md-4">
+                {{ form_widget(form.dateObtentionCertificat.date.day, {'attr': {'class': 'form-control'}}) }}
+            </div>
+            <div class="col-md-4">
+                {{ form_widget(form.dateObtentionCertificat.date.year, {'attr': {'class': 'form-control'}}) }}
+            </div>
+        </div>
+        <div class="row mt-2">
+            <div class="col-md-6">
+                {{ form_widget(form.dateObtentionCertificat.time.hour, {'attr': {'class': 'form-control'}}) }}
+            </div>
+            <div class="col-md-6">
+                {{ form_widget(form.dateObtentionCertificat.time.minute, {'attr': {'class': 'form-control'}}) }}
+            </div>
+        </div>
+        {{ form_errors(form.dateObtentionCertificat) }}
+
+        <div class="form-group">
+            <label for="{{ form.idEtablissement.vars.id }}" class="form-label">Etablissement</label>
+            {{ form_widget(form.idEtablissement, {'attr': {'class': 'form-control'}}) }}
+            {{ form_errors(form.idEtablissement) }}
+        </div>
+    </div>
+</div>
+
+<button type="submit" class="btn btn-primary">{{ button_label|default('Save') }}</button>
+
+{{ form_end(form) }}

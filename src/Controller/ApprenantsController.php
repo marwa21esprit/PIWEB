@@ -21,7 +21,7 @@ class ApprenantsController extends AbstractController
     #[Route('/', name: 'app_apprenants_index', methods: ['GET'])]
     public function index(ApprenantsRepository $apprenantsRepository): Response
     {
-        return $this->render('apprenants/index.html.twig', [
+        return $this->render('front/apprenants/index.html.twig', [
             'apprenants' => $apprenantsRepository->findAll(),
         ]);
     }
@@ -32,7 +32,7 @@ class ApprenantsController extends AbstractController
         $apprenants = $this->getDoctrine()->getRepository(Apprenants::class)->findAll();
 
         // Passez les apprenants à la vue Twig
-        return $this->render('apprenants/listapprenantback.html.twig', [
+        return $this->render('back/apprenants/index.html.twig', [
             'apprenants' => $apprenants,
         ]);
     }
@@ -70,7 +70,7 @@ class ApprenantsController extends AbstractController
             return $this->redirectToRoute('app_apprenants_index');
         }
 
-        return $this->render('apprenants/add.html.twig', [
+        return $this->render('back/apprenants/add.html.twig', [
             'form' => $form->createView(),
         ]);
     }
@@ -80,7 +80,7 @@ class ApprenantsController extends AbstractController
     #[Route('/{id}', name: 'app_apprenants_show', methods: ['GET'])]
     public function show(Apprenants $apprenant): Response
     {
-        return $this->render('apprenants/show.html.twig', [
+        return $this->render('back/apprenants/show.html.twig', [
             'apprenant' => $apprenant,
         ]);
     }
@@ -89,32 +89,32 @@ class ApprenantsController extends AbstractController
     #[Route('/show/{id}', name: 'app_apprenants_showfront', methods: ['GET'])]
     public function showfront(Apprenants $apprenant): Response
     {
-        return $this->render('apprenants/showfront.html.twig', [
+        return $this->render('back/apprenants/showfront.html.twig', [
             'apprenant' => $apprenant,
         ]);
     }
     #[Route('/listb', name: 'back')]
-public function listapprenantsback(): Response
-{
-    
-    $apprenant = $this->getDoctrine()->getRepository(Apprenants::class)->findAll();
+    public function listapprenantsback(): Response
+    {
 
-    
-    return $this->render('apprenants/listback.html.twig', [
-        'apprenant' => $apprenant,
-    ]);
-}
+        $apprenant = $this->getDoctrine()->getRepository(Apprenants::class)->findAll();
 
-#[Route('/list', name: 'app_apprenants')]
-public function listapprenants(): Response
-{
-    // Fetch reservations from the database
-    $apprenant = $this->getDoctrine()->getRepository(Apprenants::class)->findAll();
 
-    // Render the template to display the list of reservations
-    return $this->render('apprenants/list.html.twig', [
-        'apprenant' => $apprenant,
-    ]);
+        return $this->render('back/apprenants/listback.html.twig', [
+            'apprenant' => $apprenant,
+        ]);
+    }
+
+    #[Route('/list', name: 'app_apprenants')]
+    public function listapprenants(): Response
+    {
+        // Fetch reservations from the database
+        $apprenant = $this->getDoctrine()->getRepository(Apprenants::class)->findAll();
+
+        // Render the template to display the list of reservations
+        return $this->render('back/apprenants/list.html.twig', [
+            'apprenant' => $apprenant,
+        ]);
 }
 
 #[Route('/{id}/edit', name: 'app_apprenants_edit', methods: ['GET', 'POST'])]
@@ -143,13 +143,11 @@ public function edit(Request $request, Apprenants $apprenant, EntityManagerInter
     }
 
     // Retourner une réponse en cas où le formulaire n'est pas valide
-    return $this->render('apprenants/edit.html.twig', [
+    return $this->render('back/apprenants/edit.html.twig', [
         'apprenant' => $apprenant,
         'form' => $form->createView(),
     ]);
 }
-
-
 
     #[Route('/{id}', name: 'app_apprenants_delete', methods: ['POST'])]
     public function delete(Request $request, Apprenants $apprenant, EntityManagerInterface $entityManager): Response
@@ -161,4 +159,20 @@ public function edit(Request $request, Apprenants $apprenant, EntityManagerInter
 
         return $this->redirectToRoute('app_apprenants_index', [], Response::HTTP_SEE_OTHER);
     }
+        #[Route('/search', name:'search_apprenant', methods:['GET'])]
+        public function search(Request $request): Response
+        {
+            $query = $request->query->get('query');
+
+            // Perform the search query using your repository or ORM
+            $entityManager = $this->getDoctrine()->getManager();
+            $apprenants = $entityManager->getRepository(Apprenants::class)->findBySearchQuery($query);
+
+            // Render the template with the search results
+            return $this->render('back/apprenants/index.html.twig', [
+                'apprenants' => $apprenants,
+            ]);
+        }
+
+
 }

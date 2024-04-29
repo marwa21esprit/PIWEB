@@ -93,24 +93,20 @@ public function Order()
         return $query->getResult();
     }
 
-public function findTeamwithNumber($num){
+public function findByName($num){
         return $this->createQueryBuilder('niveau')
             ->where('niveau.name LIKE :name')
             ->setParameter('name', '%'.$num.'%')
             ->getQuery()
             ->getResult();
     }
-    public function DescNivSearch($order){
-        $em = $this->getEntityManager();
-
-        $query = $em->createQuery('SELECT e FROM App\Entity\Niveau e order by e.nbformation DESC ');
-        return $query->getResult();
-    }
-    public function AscNivSearch($order){
-        $em = $this->getEntityManager();
-
-        $query = $em->createQuery('SELECT e FROM App\Entity\Niveau e order by e.nbformation ASC  ');
-        return $query->getResult();
+    public function findBySearchQuery(string $query): array
+    {
+        return $this->createQueryBuilder('a')
+            ->andWhere('a.name LIKE :query')
+            ->setParameter('query', $query . '%')
+            ->getQuery()
+            ->getResult();
     }
 
 }

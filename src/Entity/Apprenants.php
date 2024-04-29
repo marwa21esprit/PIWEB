@@ -61,9 +61,7 @@ class Apprenants
    #[Groups("post:read")]
 private ?string $image = null;
 
-#[ORM\ManyToOne(inversedBy: 'apprenant')]
-#[Groups("post:read")]
-private ?Niveau $niveau = null;
+
 
 #[ORM\OneToMany(targetEntity: Participation1::class, mappedBy: 'student')]
 private Collection $participation1s;
@@ -145,17 +143,9 @@ public function __construct()
         return $this;
     }
 
-    public function getNiveau(): ?Niveau
-    {
-        return $this->niveau;
-    }
+    
 
-    public function setNiveau(?Niveau $niveau): static
-    {
-        $this->niveau = $niveau;
-
-        return $this;
-    }
+    
 
     /**
      * @return Collection<int, Participation1>
@@ -186,6 +176,7 @@ public function __construct()
 
         return $this;
     }
+    
 
     
     

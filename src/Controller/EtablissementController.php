@@ -4,35 +4,85 @@ namespace App\Controller;
 
 use App\Entity\Certificat;
 use App\Entity\Etablissement;
+use App\Entity\UserEtablissement;
 use App\Form\EtablissementType;
 use App\Repository\EtablissementRepository;
+use App\Repository\UserEtablissementRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
+use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\Serializer\SerializerInterface;
 
 #[Route('/etablissement')]
 class EtablissementController extends AbstractController
 {
 
     #[Route('/', name: 'app_etablissement_index')]
-    public function showEtablissement(EtablissementRepository $aR): Response
-    {
-        $etablissBD=$aR->findAll();
+    public function showEtablissement(
+        EtablissementRepository $etablissementRepository,
+        UserEtablissementRepository $userEtablissementRepository
+    ): Response {
+        $etablissements = $etablissementRepository->findAll();
+
+        foreach ($etablissements as $etablissement) {
+            $userEtablissements = $userEtablissementRepository->findBy(['etablissement' => $etablissement]);
+
+            $likes = 0;
+            $dislikes = 0;
+
+            foreach ($userEtablissements as $userEtablissement) {
+                if ($userEtablissement->getLiked()) {
+                    $likes++;
+                }
+                if ($userEtablissement->getDisliked()) {
+                    $dislikes++;
+                }
+            }
+
+            $etablissement->setLikes($likes);
+            $etablissement->setDislikes($dislikes);
+        }
+
         return $this->render('front/etablissement/index.html.twig', [
-            'etablissements'=>$etablissBD,
+            'etablissements' => $etablissements,
         ]);
     }
+
+
     #[Route('/admin', name: 'app_etablissement_index_admin')]
-    public function showEtablissementAdmin(EtablissementRepository $aR): Response
+    public function showEtablissementAdmin(EtablissementRepository $etablissementRepository, UserEtablissementRepository $userEtablissementRepository): Response
     {
-        $etablissBD=$aR->findAll();
+        $etablissements = $etablissementRepository->findAll();
+
+        foreach ($etablissements as $etablissement) {
+            $userEtablissements = $userEtablissementRepository->findBy(['etablissement' => $etablissement]);
+
+            $likes = 0;
+            $dislikes = 0;
+
+            foreach ($userEtablissements as $userEtablissement) {
+                if ($userEtablissement->getLiked()) {
+                    $likes++;
+                }
+                if ($userEtablissement->getDisliked()) {
+                    $dislikes++;
+                }
+            }
+
+            $etablissement->setLikes($likes);
+            $etablissement->setDislikes($dislikes);
+        }
+
         return $this->render('back/etablissement/index.html.twig', [
-            'etablissements'=>$etablissBD,
+            'etablissements' => $etablissements, // Correction ici
         ]);
     }
+
 
     #[Route('/new', name: 'app_etablissement_new', methods: ['GET', 'POST'])]
     public function new(Request $request, EntityManagerInterface $entityManager): Response
@@ -120,16 +170,81 @@ class EtablissementController extends AbstractController
             throw $this->createNotFoundException('Etablissement not found');
         }
 
-        $certificatRepository = $entityManager->getRepository(Certificat::class);
-        $certificats = $certificatRepository->findBy(['idEtablissement' => $etablissement]);
+        // Retrieve associated UserEtablissement entities
+        $userEtablissementRepository = $entityManager->getRepository(UserEtablissement::class);
+        $userEtablissements = $userEtablissementRepository->findBy(['etablissement' => $etablissement]);
 
-        foreach ($certificats as $certificat) {
-            $entityManager->remove($certificat);
+        // Remove associated UserEtablissement entities
+        foreach ($userEtablissements as $userEtablissement) {
+            $entityManager->remove($userEtablissement);
         }
 
+        // Flush the changes before deleting the Etablissement
+        $entityManager->flush();
+
+        // Delete the Etablissement
         $entityManager->remove($etablissement);
         $entityManager->flush();
 
         return $this->redirectToRoute('app_etablissement_index_admin', [], Response::HTTP_SEE_OTHER);
     }
+
+
+    #[Route('/r/search_etablissement', name: 'search_etablissement', methods: ['GET'])]
+    public function searchEtablissement(
+        Request $request,
+        SerializerInterface $serializer,
+        EtablissementRepository $etablissementRepository,
+        UserEtablissementRepository $userEtablissementRepository
+    ): Response {
+        $searchValue = $request->query->get('searchValue');
+        $orderId = $request->query->get('orderid');
+
+        $em = $this->getDoctrine()->getManager();
+        $qb = $em->createQueryBuilder();
+
+        $qb->select('e')
+            ->from(Etablissement::class, 'e')
+            ->where($qb->expr()->like('e.nomEtablissement', ':value'))
+            ->orWhere($qb->expr()->like('e.adresseEtablissement', ':value'))
+            ->setParameter('value', '%' . $searchValue . '%');
+
+        if ($orderId === 'DESC') {
+            $qb->orderBy('e.ID_Etablissement', 'DESC');
+        } else {
+            $qb->orderBy('e.ID_Etablissement', 'ASC');
+        }
+
+        $query = $qb->getQuery();
+        $etablissements = $query->getResult();
+
+        // Calculate likes and dislikes for each establishment
+        foreach ($etablissements as $etablissement) {
+            $likes = 0;
+            $dislikes = 0;
+
+            foreach ($etablissement->getUserEtablissements() as $userEtablissement) {
+                if ($userEtablissement->getLiked()) {
+                    $likes++;
+                }
+                if ($userEtablissement->getDisliked()) {
+                    $dislikes++;
+                }
+            }
+
+            $etablissement->setLikes($likes);
+            $etablissement->setDislikes($dislikes);
+        }
+
+        // Serialize the data into JSON format
+        $jsonData = $serializer->serialize($etablissements, 'json', [
+            'groups' => ['etablissement:read']
+        ]);
+        return new JsonResponse($jsonData);
+
+
+    }
+
+
+
 }

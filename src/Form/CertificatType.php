@@ -6,6 +6,7 @@ use App\Entity\Certificat;
 use App\Entity\Etablissement; // Import the Etablissement entity
 use Symfony\Bridge\Doctrine\Form\Type\EntityType; // Import EntityType
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\Extension\Core\Type\DateType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
@@ -39,7 +40,23 @@ class CertificatType extends AbstractType
                     'Doctorat' => 'Doctorat',
                 ],
             ])
-            ->add('dateObtentionCertificat')
+            ->add('dateObtentionCertificat', DateType::class, [
+                'widget' => 'single_text',
+                'required' => false,
+                'placeholder' => [
+                    'year' => 'YYYY',
+                    'month' => 'MM',
+                    'day' => 'DD',
+                ],
+                'empty_data' => function ($form) {
+                    $entity = $form->getData();
+                    if ($entity && $entity->getDateObtentionCertificat() !== null) {
+                        return $entity->getDateObtentionCertificat()->format('Y-m-d');
+                    } else {
+                        return date('Y-m-d');
+                    }
+                },
+            ])
             ->add('idEtablissement', EntityType::class, [
                 'class' => Etablissement::class,
                 'choice_label' => 'nomEtablissement',

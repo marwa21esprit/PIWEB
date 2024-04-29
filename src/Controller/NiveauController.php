@@ -2,24 +2,28 @@
 
 namespace App\Controller;
 
+use App\Entity\Certificat;
 use App\Entity\Niveau;
+use App\Form\NiveauCertType;
 use App\Form\NiveauType;
 use App\Repository\NiveauRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\File\Exception\FileException;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Bridge\Twig\Mime\TemplatedEmail;
 use Symfony\Component\Mailer\MailerInterface;
-use Swift_Mailer;
+
 use CMEN\GoogleChartsBundle\GoogleCharts\Charts\BarChart;
 use App\Notification\NouveauCompteNotification;
 use Knp\Component\Pager\PaginatorInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Dompdf\Dompdf;
 use Dompdf\Options;
+use App\Notification\MessageService;
 
 
 #[Route('/niveau')]
@@ -28,16 +32,16 @@ class NiveauController extends AbstractController
 {
 
     private $notify_creation;
-    public function __construct(NouveauCompteNotification $notify_creation)
+    public function __construct()
     {
-        $this->notify_creation = $notify_creation;
+       // $this->notify_creation = $notify_creation;
     }
 
     #[Route('/', name: 'app_niveau_index', methods: ['GET'])]
-    public function index(NiveauRepository $niveauRepository, Request $request, PaginatorInterface $paginator): Response
+    public function index(NiveauRepository $niveauRepository, Request $request, PaginatorInterface $paginator,MailerInterface $mailer): Response
     {
-        $Niv = $niveauRepository->notifyNewNiveau();
-        $this->notify_creation->notify($Niv);
+       $Niv = $niveauRepository->notifyNewNiveau();
+       // $this->notify_creation->notify($Niv, $mailer);
     
         // Récupérer les données à paginer depuis le repository
         $donnees = $niveauRepository->findAll();
@@ -50,7 +54,7 @@ class NiveauController extends AbstractController
         );
     
         // Passer les données paginées à la vue Twig
-        return $this->render('niveau/index.html.twig', [
+        return $this->render('back/niveau/index.html.twig', [
             'niveaux' => $niveaux,
         ]);
     }
@@ -62,55 +66,56 @@ class NiveauController extends AbstractController
         $niveau = $this->getDoctrine()->getRepository(Niveau::class)->findAll();
 
         // Passez les apprenants à la vue Twig
-        return $this->render('niveau/listniveauback.html.twig', [
+        return $this->render('back/niveau/listniveauback.html.twig', [
             'niveau' => $niveau,
         ]);
     }
 
     #[Route('/add', name: 'app_niveau_new', methods: ['GET', 'POST'])]
-    public function new(Request $request, EntityManagerInterface $entityManager,MailerInterface $mailer): Response
+    public function new(Request $request, EntityManagerInterface $entityManager, MessageService $messageService): Response
     {
         $niveau = new Niveau();
-        $form = $this->createForm(NiveauType::class, $niveau);
+        $form = $this->createForm(NiveauCertType::class, $niveau);
         $form->handleRequest($request);
     
         if ($form->isSubmitted() && $form->isValid()) {
-            // Récupérer le fichier téléchargé depuis le formulaire
-            $imageFile = $form['image']->getData();
-    
-            // Générer un nom unique pour le fichier
-            $image = md5(uniqid()) . '.' . $imageFile->guessExtension();
-    
-            // Déplacer le fichier vers le répertoire de destination
-            $imageFile->move(
-                $this->getParameter('images_directory'),
-                $image
-            );
-    
-            // Mettre à jour le nom de fichier dans l'entité Niveau
-            $niveau->setImage($image);
-    
-            // Enregistrer l'entité dans la base de données
+
+            $file = $form->get('image')->getData();
+            if($file)
+            {
+                $fileName = md5(uniqid()).'.'.$file->guessExtension();
+                try {
+                    $file->move(
+                        $this->getParameter('images_directory'),
+                        $fileName
+                    );
+                } catch (FileException $e){
+
+                }
+                $niveau->setImage($fileName);
+            }
+            else
+            {
+                $niveau->setImage("course-2.jpg");
+            }
+
             $entityManager->persist($niveau);
             $entityManager->flush();
     
-            $this->addFlash('success', 'Level a été ajouté avec succès.');
-
-            
+            // Utiliser le service MessageService pour ajouter le message flash
+            $messageService->addSuccess('Level a été ajouté avec succès.');
 
             return $this->redirectToRoute('app_niveau_index');
-
         }
     
-        return $this->render('niveau/add.html.twig', [
+        return $this->render('back/niveau/add.html.twig', [
             'form' => $form->createView(),
         ]);
     }
-
     
     #[Route('/statistiques', name: 'app_niveau_statistique')]
     public function stat(NiveauRepository $repository): Response
-{
+    {
     // Utilisez une méthode du repository pour récupérer les statistiques souhaitées
     $niveauxStats = $repository->statistiquesNiveau();
 
@@ -127,55 +132,79 @@ class NiveauController extends AbstractController
     $barChart->getOptions()->getTitleTextStyle()->setFontSize(50);
 
     // Renvoyer la vue Twig avec les données du graphique et les statistiques des niveaux
-    return $this->render('niveau/stat.html.twig', [
+    return $this->render('back/niveau/stat.html.twig', [
         'barchart' => $barChart,
         'nbs' => $niveauxStats,
     ]);
 }
     
-    #[Route('/niveaux', name: 'app_niveau_front', methods: ['GET'])]
-    public function front(NiveauRepository $niveauRepository): Response
-    {
-
-        return $this->render('niveau/showfront.html.twig', [
-            'niveaux' => $niveauRepository->findAll(),
-        ]);
-       
-    }
-
-    #[Route('/{id}', name: 'app_niveau_show', methods: ['GET'])]
-public function show(string $id, NiveauRepository $niveauRepository): Response
+#[Route('/niveaux', name: 'app_niveau_front', methods: ['GET'])]
+public function front(NiveauRepository $niveauRepository, Request $request, PaginatorInterface $paginator): Response
 {
-    // Convertir l'ID en entier
-    $id = (int) $id;
+    // Récupérer les données à paginer depuis le repository
+    $donnees = $niveauRepository->findAll();
 
-    $niveau = $niveauRepository->find($id);
+    // Paginer les données
+    $niveaux = $paginator->paginate(
+        $donnees,
+        $request->query->getInt('page', 1),
+        4 // Nombre d'éléments par page
+    );
 
-    if (!$niveau) {
-        throw new NotFoundHttpException('Niveau not found');
-    }
-
-    return $this->render('niveau/show.html.twig', [
-        'niveau' => $niveau,
+    // Passer les données paginées à la vue Twig
+    return $this->render('front/niveau/showfront.html.twig', [
+        'niveaux' => $niveaux,
     ]);
 }
+    #[Route('/showOne/{id}', name: 'app_niveau_show', methods: ['GET'])]
+    public function show(string $id, NiveauRepository $niveauRepository): Response
+    {
+        // Convertir l'ID en entier
+        $id = (int) $id;
+
+        $niveau = $niveauRepository->find($id);
+
+        if (!$niveau) {
+            throw new NotFoundHttpException('Niveau not found');
+        }
+
+        return $this->render('back/niveau/show.html.twig', [
+            'niveau' => $niveau,
+        ]);
+    }
 
     
    
     
-    #[Route('/{id}/edit', name: 'app_niveau_edit', methods: ['GET', 'POST'])]
+    #[Route('/edit/{id}', name: 'app_niveau_edit', methods: ['GET', 'POST'])]
     public function edit(Request $request, Niveau $niveau, EntityManagerInterface $entityManager): Response
     {
-        $form = $this->createForm(NiveauType::class, $niveau);
+
+        $form = $this->createForm(NiveauCertType::class, $niveau);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            $file = $form->get('image')->getData();
+            if($file)
+            {
+                $fileName = md5(uniqid()).'.'.$file->guessExtension();
+                try {
+                    $file->move(
+                        $this->getParameter('images_directory'),
+                        $fileName
+                    );
+                } catch (FileException $e){
+
+                }
+                $niveau->setImage($fileName);
+            }
+
             $entityManager->flush();
 
             return $this->redirectToRoute('app_niveau_index', [], Response::HTTP_SEE_OTHER);
         }
 
-        return $this->renderForm('niveau/edit.html.twig', [
+        return $this->renderForm('back/niveau/edit.html.twig', [
             'niveau' => $niveau,
             'form' => $form,
         ]);
@@ -202,81 +231,24 @@ public function show(string $id, NiveauRepository $niveauRepository): Response
         return $this->render("niveau/index.html.twig",
             ['niveaux'=>$niveaux]);
     }
-    #[Route('/niveau/search_back1', name: 'app_niveau_search_back1', methods: ["GET"])]
-    public function search_back1(Request $request,NiveauRepository $Repository ): Response
-    {
 
-        $requestString = $request->get('searchValue');
-        $niveaux = $Repository->findTeamwithNumber($requestString);
-        $responseArray = [];
-        $idx = 0;
-        foreach ($niveaux as $niveau) {
-            $temp = [
-                'id' => $niveau->getId(),
-                'name' => $niveau->getName(),
-                'prerequis' => $niveau->getPrerequis(),
-                'duree' => $niveau->getDuree(),
-                'nbformation' => $niveau->getnbformation(),
-                'certificat' => $niveau->getCertificat(),
-                'description' => $niveau->getDescription(),
-                
+#[Route('/search', name:'search_niveau', methods:['GET'])]
+public function search(Request $request): Response
+{
+    $query = $request->query->get('query');
 
-            ];
+    // Perform the search query using your repository or ORM
+    $entityManager = $this->getDoctrine()->getManager();
+    $niveaux = $entityManager->getRepository(Niveau::class)->findBySearchQuery($query);
 
-            $responseArray[$idx++] = $temp;
-        }
-        return new JsonResponse($responseArray);
-    
-    }
-    #[Route('/niveau/DOWNtriEQUIPE', name: 'app_niveau_DOWNtriEQUIPE', options: ["expose" => true])]
-
-    public function DOWNtriEQUIPE(Request $request,NiveauRepository $repository): JsonResponse
-    {
-
-        $UPorDOWN=$request->get('order');
-        $niveaux=$repository->DescNivSearch($UPorDOWN);
-        $responseArray = [];
-        $idx = 0;
-        foreach ($niveaux as $niveau){
-            $temp = [
-                'id' => $niveau->getId(),
-                'name' => $niveau->getName(),
-                'prerequis' => $niveau->getPrerequis(),
-                'duree' => $niveau->getDuree(),
-                'nbformation' => $niveau->getnbformation(),
-                'certificat' => $niveau->getCertificat(),
-                'description' => $niveau->getDescription(),
-            ];
-
-            $responseArray[$idx++] = $temp;
-
-        }
-        return new JsonResponse($responseArray);
-    }
-    #[Route('/niveau/UPtriEQUIPE', name: 'app_niveau_UPtriEQUIPE', options: ["expose" => true])]
-    public function UPtriEQUIPE(Request $request,NiveauRepository $repository): JsonResponse
-    {
-        $UPorDOWN=$request->get('order');
-        $Niveaux=$repository->AscNivSearch ($UPorDOWN);
-        $responseArray = [];
-        $idx = 0;
-        foreach ($Niveaux as $niveau){
-            $temp = [
-                'id' => $niveau->getId(),
-                'name' => $niveau->getName(),
-                'prerequis' => $niveau->getPrerequis(),
-                'duree' => $niveau->getDuree(),
-                'nbformation' => $niveau->getnbformation(),
-                'certificat' => $niveau->getCertificat(),
-                'description' => $niveau->getDescription(),
-            ];
-            $responseArray[$idx++] = $temp;
-
-        }
-        return new JsonResponse($responseArray);
-    }
+    // Render the template with the search results
+    return $this->render('apprenants/index.html.twig', [
+        'niveaux' => $niveaux,
+    ]);
+}
+   
     #[Route('/imprimerNi', name: 'app_niveau_imprimerNi')]
-    public function imprimer(NiveauRepository  $repository ,EntityManagerInterface $entityManager)
+    public function imprimer(NiveauRepository  $repository )
 
     {
         // Configure Dompdf according to your needs
@@ -288,14 +260,11 @@ public function show(string $id, NiveauRepository $niveauRepository): Response
         // Instantiate Dompdf with our options
         $dompdf = new Dompdf($pdfOptions);
 
-        $niveaux = $entityManager
-            ->getRepository(Niveau::class)
-            ->findAll();
+        $niveaux = $repository->findAll();
 
         // Retrieve the HTML generated in our twig file
-        $html = $this->renderView('niveau/pdf.html.twig', [
+        $html = $this->renderView('back/niveau/pdf.html.twig', [
             'niveaux' => $niveaux,
-
         ]);
 
         // Load HTML to Dompdf

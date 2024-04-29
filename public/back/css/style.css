@@ -198,10 +198,6 @@
   background: linear-gradient(to right, #a15cff 0%, #ce82fd 100%);
   filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#a15cff', endColorstr='#ce82fd',GradientType=1 ); }
 
-
-.error-message {
-    color: red;
-}
 /*
 0 - 600: Phone
 600 - 900: Tablet portrait
