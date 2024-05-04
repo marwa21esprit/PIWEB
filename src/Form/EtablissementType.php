@@ -4,12 +4,16 @@ namespace App\Form;
 
 use App\Entity\Etablissement;
 use Symfony\Component\Form\AbstractType;
+
 use Symfony\Component\Form\Extension\Core\Type\DateType;
+
 use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
+
 use Symfony\Component\Validator\Constraints as Assert;
+
 
 class EtablissementType extends AbstractType
 {
@@ -17,6 +21,7 @@ class EtablissementType extends AbstractType
     {
         $builder
             ->add('imgEtablissement',FileType::class, [
+
                 'label'=>false,
                 'mapped'=>false,
                 'required'=>false
@@ -38,6 +43,7 @@ class EtablissementType extends AbstractType
                     ]),
                 ],
             ])
+
             ->add('adresseEtablissement')
             ->add('typeEtablissement', ChoiceType::class, [
                 'label' => 'Type',
@@ -53,6 +59,7 @@ class EtablissementType extends AbstractType
                     'class' => 'form-control',
                 ],
             ])
+
             ->add('telEtablissement', null, [
                 'label' => 'Numéro de téléphone de l\'établissement', // Label in French
                 'constraints' => [
@@ -81,10 +88,9 @@ class EtablissementType extends AbstractType
                         return date('Y-m-d');
                     }
                 },
-=======
+
                 'data' => new \DateTime(),
             ])
-
         ;
     }
 

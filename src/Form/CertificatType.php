@@ -10,7 +10,6 @@ use Symfony\Component\Form\Extension\Core\Type\DateType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
-
 use Symfony\Component\Validator\Constraints as Assert;
 
 class CertificatType extends AbstractType
@@ -42,6 +41,7 @@ class CertificatType extends AbstractType
                     'Doctorat' => 'Doctorat',
                 ],
             ])
+
             ->add('dateObtentionCertificat', DateType::class, [
                 'widget' => 'single_text',
                 'required' => false,
@@ -66,11 +66,12 @@ class CertificatType extends AbstractType
                 'class' => Etablissement::class,
                 'choice_label' => 'nomEtablissement',
                 'placeholder' => 'Select an etablissement',
+
                 'constraints' => [
                     new Assert\NotBlank([
                         'message' => 'Veuillez sélectionner un établissement.',
                     ]),
-                ],
+
             ])
         ;
     }

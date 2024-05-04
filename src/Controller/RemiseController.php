@@ -2,20 +2,29 @@
 
 namespace App\Controller;
 use App\Entity\Remiseentry; // Add this line
+use App\Repository\RemiseRepository; // Add this line
 use App\Form\RemiseType; 
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\JsonResponse;
+use Doctrine\ORM\EntityManagerInterface;
 
 class RemiseController extends AbstractController
 {
     #[Route('/remise', name: 'app_remise')]
     public function index(): Response
     {
-        return $this->render('remise/listR.html.twig', [
+        return $this->render('/back/remise/listR.html.twig', [
             'controller_name' => 'RemiseController',
         ]);
+    }
+
+    #[Route('/remise/reem', name: 'app_remise_rem')]
+    public function indeeeeex(RemiseRepository $remiseRepository): Response
+    {
+        return $remiseRepository->getRandomRemise();
     }
 
 
@@ -40,7 +49,7 @@ class RemiseController extends AbstractController
             return $this->redirectToRoute('app_remises');
         }
     
-        return $this->render('remise/add.html.twig', [
+        return $this->render('/back/remise/add.html.twig', [
             'f' => $form->createView(),
         ]);
     }
@@ -55,7 +64,7 @@ public function listRemise(): Response
     $remises = $this->getDoctrine()->getRepository(Remiseentry::class)->findAll();
 
     // Render the template to display the list of reservations
-    return $this->render('remise/listR.html.twig', [
+    return $this->render('/back/remise/listR.html.twig', [
         'remises' => $remises,
     ]);
 }
@@ -110,8 +119,29 @@ public function updateRemise(Request $request, int $id): Response
     }
 
     // Render the form for updating the reservation
-    return $this->render('remise/update.html.twig', [
+    return $this->render('/back/remise/update.html.twig', [
         'f' => $form->createView(),
     ]);
 }
+
+#[Route('/apply-remise', name: 'apply_remise', methods: ['POST'])]
+public function applyRemise(Request $request): JsonResponse
+{
+    $code = $request->getContent(); // Get the code entered by the user from the request body
+    // Search for the remise entry in the database based on the code
+    $remise = $this->getDoctrine()->getRepository(Remiseentry::class)->findOneBy(['code' => $code]);
+
+    if (!$remise) {
+        return new JsonResponse(['error' => 'Remise not found'], JsonResponse::HTTP_NOT_FOUND);
+    }
+
+    // Calculate the discounted amount based on the remise percentage
+    $discountPercentage = $remise->getPourcentage();
+    $totalAmount = $reservation->getNbPlaces() * $reservation->getEventPrice();
+    $discountedAmount = $totalAmount * (1 - ($discountPercentage / 100));
+
+    // Return the discounted amount as a response
+    return new JsonResponse(['discountedAmount' => $discountedAmount]);
 }
+}
+

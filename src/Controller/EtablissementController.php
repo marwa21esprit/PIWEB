@@ -79,8 +79,6 @@ class EtablissementController extends AbstractController
             'etablissements' => $etablissements, // Correction ici
         ]);
     }
-
-
     public function showEtablissement(EtablissementRepository $aR): Response
     {
         $etablissBD=$aR->findAll();

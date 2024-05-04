@@ -348,7 +348,7 @@ class UserController extends AbstractController
             ->orderBy('u.lastlogin', 'DESC')
             ->getQuery()
             ->getResult();
-        return $this->render('back/user/index.html.twig', [
+        return $this->render('back/Dashboard.html.twig', [
             'users'=>$users,
             'usersConnected'=>$usersConnected,
         ]);

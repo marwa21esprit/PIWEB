@@ -38,7 +38,7 @@ class Reservation
     private $idUser;
 
     #[ORM\ManyToOne(targetEntity: "Event")]
-    #[ORM\JoinColumn(name: "id_event", referencedColumnName: "idEvent")]
+    #[ORM\JoinColumn(name: "id_event", referencedColumnName: "idevent")]
     private $idEvent;
 
     private ?Paiement $paiement =null;
