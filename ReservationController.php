@@ -26,54 +26,72 @@ use App\Entity\Paiement;
 use App\Form\PaiementType;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Knp\Component\Pager\PaginatorInterface;
+use App\Repository\ReservationRepository;
+use App\Repository\PaiementRepository;
 
+use Symfony\Component\HttpFoundation\RedirectResponse;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 class ReservationController extends AbstractController
 {
     #[Route('/reservation', name: 'app_reservation')]
     public function index(): Response
     {
-        return $this->render('reservation/index.html.twig', [
+        return $this->render('/reservation/index.html.twig', [
             'controller_name' => 'ReservationController',
         ]);
     }
 
 
     #[Route('/add/{eventId}', name: 'app_reservation_add')]
-public function addReservation(Request $request, int $eventId): Response
-{        
-         $event = $this->getDoctrine()->getRepository(Event::class)->find($eventId);
+    public function addReservation(Request $request, int $eventId ): Response
+    {
+        $event = $this->getDoctrine()->getRepository(Event::class)->find($eventId);
         if (!$event) {
-             throw $this->createNotFoundException('Event not found');
+            throw $this->createNotFoundException('Event not found');
         }
+        
         $reservation = new Reservation();
         $form = $this->createForm(ReservationType::class, $reservation);
         $form->handleRequest($request);
-
+    
         if ($form->isSubmitted() && $form->isValid()) {
-            // Calculate the eventPrice based on the form data
+            $user = $this->getUser();
+            $nameU= $user->getName();
+            $email=$user->getEmail();
             $nbPlaces = $reservation->getNbPlaces();
             $eventPrice = $event->getPrix();
             $eventName = $event->getNameevent();
             $image = $event->getImage();
-
+    
+            // Calculate the total reserved places for the event
+            $totalReservedPlaces = $event->getTotalReservedPlaces();
+    
+            if (($totalReservedPlaces + $nbPlaces) > $event->getNbrmax()) {
+                $this->addFlash('error', 'We dont have this available places. Please choose a lower number of places.');
+                return $this->redirectToRoute('app_reservation_add', ['eventId' => $eventId]);
+            }
+    
+            $reservation->setIdUser($user);
+            $reservation->setName($nameU);
+            $reservation->setEmail($email);
             $reservation->setEventPrice($eventPrice);
             $reservation->setIdEvent($event);
             $reservation->setNamee($eventName);
             $reservation->setImagesrc($image);
-
-            // Persist the reservation to the database
+    
             $entityManager = $this->getDoctrine()->getManager();
             $entityManager->persist($reservation);
             $entityManager->flush();
     
-            // Add flash message
             $this->addFlash('success', 'Reservation added successfully.');
-            // Redirect to the list of reservations
+    
             return $this->redirectToRoute('app_paiement_add', ['reservationId' => $reservation->getId()]);
         }
     
-        return $this->render('reservation/add.html.twig', [
+        return $this->render('/front/reservation/add.html.twig', [
             'f' => $form->createView(),
             'event' => $event,
         ]);
@@ -85,9 +103,14 @@ public function addReservation(Request $request, int $eventId): Response
     #[Route('/list', name: 'app_reservations')]
     public function listReservations(Request $request, PaginatorInterface $paginator)
     {
+        $user = $this->getUser();
         // Fetch reservations from the database
-        $reservations = $this->getDoctrine()->getRepository(Reservation::class)->findAll();
+        $reservations = $this->getDoctrine()->getRepository(Reservation::class)->findBy([
+            'idUser' => $user
+        ]);
     
+        $paiments = $this->getDoctrine()->getRepository(Paiement::class)->findAll();
+
         // Paginate the reservations
         $pagination = $paginator->paginate(
             $reservations, // Query results
@@ -118,7 +141,7 @@ public function addReservation(Request $request, int $eventId): Response
         $pageParameterName = 'page';
     
         // Render the template to display the list of reservations
-        return $this->render('reservation/list.html.twig', [
+        return $this->render('/front/reservation/list.html.twig', [
             'pagination' => $pagination,
             'pageCount' => $pageCount,
             'startPage' => $startPage,
@@ -127,28 +150,61 @@ public function addReservation(Request $request, int $eventId): Response
             'current' => $currentPage, // Pass current page number to the template
             'route' => $route, // Pass route name to the template
             'query' => $query, // Pass query parameters to the template
-            'pageParameterName' => $pageParameterName, // Pass the name of the page parameter
+            'pageParameterName' => $pageParameterName, // Pass the name of the page parameter,
+            'paiments' => $paiments
         ]);
     }
     
     
-    
-    
 
-    
-    
+    #[Route('/listb', name: 'back')]
+    public function listReservation(ReservationRepository $res, PaginatorInterface $paginator,Request $request): Response
+    {
+        // Fetch reservations from the database
+        $reservations = $res->findAllSortedByNbPl();
+     // Paginate the reservations
+     $pagination = $paginator->paginate(
+        $reservations, // Query results
+        $request->query->getInt('page', 1), // Current page number
+        3 // Number of items per page
+    );
 
-#[Route('/listb', name: 'back')]
-public function listReservation(): Response
-{
-    // Fetch reservations from the database
-    $reservations = $this->getDoctrine()->getRepository(Reservation::class)->findAll();
+    // Get the total number of pages
+    $pageCount = $pagination->getPageCount();
+
+    // Get the current page number
+    $currentPage = $pagination->getCurrentPageNumber();
+
+    // Calculate startPage and endPage based on the pagination
+    $startPage = max(1, $currentPage - 2);
+    $endPage = min($pageCount, $currentPage + 2);
+
+    // Calculate pagesInRange array
+    $pagesInRange = range($startPage, $endPage);
+
+    // Get the route name for pagination
+    $route = 'back';
+
+    // Get the query parameters
+    $query = $request->query->all();
+
+    // Define the name of the query parameter for the page number
+    $pageParameterName = 'page';
 
     // Render the template to display the list of reservations
-    return $this->render('reservation/listback.html.twig', [
-        'reservations' => $reservations,
+    return $this->render('/back/reservation/listback.html.twig', [
+        'pagination' => $pagination,
+        'pageCount' => $pageCount,
+        'startPage' => $startPage,
+        'endPage' => $endPage,
+        'pagesInRange' => $pagesInRange,
+        'current' => $currentPage, // Pass current page number to the template
+        'route' => $route, // Pass route name to the template
+        'query' => $query, // Pass query parameters to the template
+        'pageParameterName' => $pageParameterName, // Pass the name of the page parameter
     ]);
-}
+    }
+    
 
 
 #[Route('/reservation/{id}', name: 'show_resB')]
@@ -167,10 +223,10 @@ public function detailResBack($id): Response
     $paiement = $this->getDoctrine()->getRepository(Paiement::class)->findOneBy(['idRes' => $reservation]);
 
     // Generate the QR code image URL
-    $qrCodeUrl = $this->generateUrl('generate_qr_code', ['id' => $reservation->getId()]);
+    $qrCodeUrl = $this->generateUrl('qr_code', ['id' => $reservation->getId()]);
 
     // Render the template to display the details of the reservation
-    return $this->render('reservation/detailB.html.twig', [
+    return $this->render('/back/reservation/detailB.html.twig', [
         'reservation' => $reservation,
         'paiement' => $paiement,
         'qrCodeUrl' => $qrCodeUrl, // Pass the QR code image URL to the template
@@ -194,15 +250,52 @@ public function detailRes($id): Response
     $paiement = $this->getDoctrine()->getRepository(Paiement::class)->findOneBy(['idRes' => $reservation]);
 
     // Generate the QR code image URL
-    $qrCodeUrl = $this->generateUrl('generate_qr_code', ['id' => $reservation->getId()]);
+    $qrCodeUrl = $this->generateUrl('qr_code', ['id' => $reservation->getId()]);
 
     // Render the template to display the details of the reservation
-    return $this->render('reservation/ticketFront.html.twig', [
+    return $this->render('/front/reservation/ticketFront.html.twig', [
         'reservation' => $reservation,
         'paiement' => $paiement,
         'qrCodeUrl' => $qrCodeUrl, // Pass the QR code image URL to the template
     ]);
 }
+
+#[Route('/print/{id}', name: 'print')]
+public function print(int $id): Response // Add the $id parameter to the method signature
+{
+    // Attempt to find the reservation by ID
+    $reservation = $this->getDoctrine()->getRepository(Reservation::class)->find($id);
+
+    // Check if reservation is not found
+    if (!$reservation) {
+        // Throw a more descriptive exception with the actual ID value
+        throw $this->createNotFoundException('Reservation not found for ID: ' . $id);
+    }
+
+    // Fetch any other necessary data (e.g., paiement)
+    // You may need to adjust this based on your application's logic
+    $paiement = $this->getDoctrine()->getRepository(Paiement::class)->findOneBy(['idRes' => $reservation]);
+
+    // Generate the QR code image URL
+    $qrCodeUrl = $this->generateUrl('qr_code', ['id' => $reservation->getId()]);
+
+    // Render the print.html.twig template with the fetched data
+    $htmlContent = $this->renderView('/front/reservation/print.html.twig', [
+        'reservation' => $reservation,
+        'paiement' => $paiement,
+        'qrCodeUrl' => $qrCodeUrl,
+    ]);
+
+    // Create a response with the HTML content
+    $response = new Response($htmlContent);
+
+    // Set headers to make sure the browser renders it as HTML
+    $response->headers->set('Content-Type', 'text/html');
+
+    // Return the response
+    return $response;
+}
+
 
 
 #[Route('/reservation/delete/{id}', name: 'app_reservation_delete', methods: ['POST'])]
@@ -340,21 +433,6 @@ public function updateNbPlaces(Request $request): JsonResponse
 }
 
 
-#[Route('/search', name:'search_reservations', methods:['GET'])]
-public function search(Request $request): Response
-{
-    $query = $request->query->get('query');
-
-    // Perform the search query using your repository or ORM
-    $entityManager = $this->getDoctrine()->getManager();
-    $reservations = $entityManager->getRepository(Reservation::class)->findBySearchQuery($query);
-
-    // Render the template with the search results
-    return $this->render('reservation/listback.html.twig', [
-        'reservations' => $reservations,
-    ]);
-}
-
 
 
 #[Route('/reservation/{id}/pdf', name: 'generate_pdf')]
@@ -371,10 +449,10 @@ public function generatePdf($id): Response
 
     // Fetch the associated paiement
     $paiement = $this->getDoctrine()->getRepository(Paiement::class)->findOneBy(['idRes' => $reservation]);
-    $qrCodeUrl = $this->generateUrl('generate_qr_code', ['id' => $reservation->getId()]);
+    $qrCodeUrl = $this->generateUrl('qr_code', ['id' => $reservation->getId()]);
 
     // Render the PDF with all necessary data
-    $html = $this->renderView('reservation/generate_pdf.html.twig', [
+    $html = $this->renderView('/back/reservation/generate_pdf.html.twig', [
         'reservation' => $reservation,
         'paiement' => $paiement,
         'qrCodeUrl' => $qrCodeUrl,
@@ -408,7 +486,7 @@ public function generatePdf($id): Response
 
 
 
-#[Route('/generate-qrcode/{id}', name: 'generate_qr_code')]
+#[Route('/qrcode/{id}', name: 'qr_code')]
 public function generateQRCode($id): Response
 {
     // Fetch the reservation by ID
@@ -445,5 +523,72 @@ public function generateQRCode($id): Response
 }
 
 
+#[Route('/reservations/export/excel', name: 'export_reservations_excel', methods: ['GET'])]
+public function exportToExcel(ReservationRepository $reservationRepository, PaiementRepository $paiementRepository): Response
+{
+    // Fetch all reservations and payments from the database
+    $reservations = $reservationRepository->findAll();
+    $paiements = $paiementRepository->findAll();
+
+    // Create a new Spreadsheet instance
+    $spreadsheet = new Spreadsheet();
+
+    // Create a new worksheet
+    $sheet = $spreadsheet->getActiveSheet();
+
+    // Add headers to the first row
+    $sheet->setCellValue('A1', 'Event Name');
+    $sheet->setCellValue('B1', 'User Name');
+    $sheet->setCellValue('C1', 'Email');
+    $sheet->setCellValue('D1', 'Nb Places');
+    $sheet->setCellValue('E1', 'Event Price');
+    $sheet->setCellValue('F1', 'Total Amount');
+    $sheet->setCellValue('G1', 'Reserved at');
+
+    // Fill in reservation data
+    $row = 2;
+    foreach ($reservations as $reservation) {
+        // Find the corresponding payment for this reservation
+        $paiement = $this->findPaiementForReservation($reservation, $paiements);
+
+        // If a corresponding payment is found, fill in the data
+        if ($paiement) {
+            $sheet->setCellValue('A' . $row, $reservation->getNamee());
+            $sheet->setCellValue('B' . $row, $reservation->getName());
+            $sheet->setCellValue('C' . $row, $reservation->getEmail());
+            $sheet->setCellValue('D' . $row, $reservation->getNbPlaces());
+            $sheet->setCellValue('E' . $row, $reservation->getEventPrice());
+            $sheet->setCellValue('F' . $row, $paiement->getMontant());
+            $sheet->setCellValue('G' . $row, $paiement->getHeureP());
+        }
+
+        $row++;
+    }
+
+    // Create a temporary file to save the Excel data
+    $tempFilePath = tempnam(sys_get_temp_dir(), 'reservations');
+    $writer = new Xlsx($spreadsheet);
+    $writer->save($tempFilePath);
+
+    // Return the Excel file as a response
+    $response = new BinaryFileResponse($tempFilePath);
+    $response->headers->set('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+    $response->headers->set('Content-Disposition', 'attachment;filename="reservations.xlsx"');
+
+    return $response;
 }
 
+
+private function findPaiementForReservation($reservation, $paiements)
+{
+    foreach ($paiements as $paiement) {
+        if ($paiement->getIdRes() === $reservation) {
+            return $paiement;
+        }
+    }
+
+    return null;
+}
+
+
+}
