@@ -12,22 +12,12 @@ use Symfony\Component\HttpFoundation\File\Exception\FileException;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Knp\Component\Pager\PaginatorInterface;
 
 
 #[Route('/partner')]
 class PartnerController extends AbstractController
 {
-
-    /*#[Route('/partner', name: 'app_partner')]
-    public function index(): Response
-    {
-        return $this->render('partner/index.html.twig', [
-            'controller_name' => 'PartnerController',
-        ]);
-    }*/
-
-
-
     #[Route('/add', name: 'app_partner_add')]//ajout avec un formulaire
     public function newPartner(EntityManagerInterface $em, Request $req): Response
     {
@@ -69,22 +59,105 @@ class PartnerController extends AbstractController
     }
 
     #[Route('/admin', name: 'app_partner')]
-    public function Partner(PartnerRepository $pR): Response
+    public function Partner(PaginatorInterface $paginator,Request $request): Response
     {
-        $partnersBD=$pR->findAll();
+        // Fetch reservations from the database
+        $partners = $this->getDoctrine()->getRepository(Partner::class)->findAll();
+        
+    
+        // Paginate the reservations
+        $pagination = $paginator->paginate(
+            $partners, // Query results
+            $request->query->getInt('page', 1), // Current page number
+            3 // Number of items per page
+        );
+        
+        
+        // Get the total number of pages
+        $pageCount = $pagination->getPageCount();
+    
+        // Get the current page number
+        $currentPage = $pagination->getCurrentPageNumber();
+    
+        // Calculate startPage and endPage based on the pagination
+        $startPage = max(1, $currentPage - 2);
+        $endPage = min($pageCount, $currentPage + 2);
+    
+        // Calculate pagesInRange array
+        $pagesInRange = range($startPage, $endPage);
+    
+        // Get the route name for pagination
+        $route = 'app_partner';
+    
+        // Get the query parameters
+        $query = $request->query->all();
+    
+        // Define the name of the query parameter for the page number
+        $pageParameterName = 'page';
+    
+        // Render the template to display the list of reservations
         return $this->render('partner/listPartnerBack.html.twig', [
-            'controller_name' => 'PartnerController',
-            'partners'=>$partnersBD,
+            'pagination' => $pagination,
+            'pageCount' => $pageCount,
+            'startPage' => $startPage,
+            'endPage' => $endPage,
+            'pagesInRange' => $pagesInRange,
+            'current' => $currentPage, // Pass current page number to the template
+            'route' => $route, // Pass route name to the template
+            'query' => $query, // Pass query parameters to the template
+            'pageParameterName' => $pageParameterName, // Pass the name of the page parameter
         ]);
     }
 
+
     #[Route('/', name: 'app_partner_front')]
-    public function PartnerFront(PartnerRepository $pR): Response
+    public function PartnerFront(PaginatorInterface $paginator,Request $request): Response
     {
-        $partnersBD=$pR->findAll();
+        // Fetch reservations from the database
+        $partners = $this->getDoctrine()->getRepository(Partner::class)->findAll();
+        
+    
+        // Paginate the reservations
+        $pagination = $paginator->paginate(
+            $partners, // Query results
+            $request->query->getInt('page', 1), // Current page number
+            4 // Number of items per page
+        );
+        
+        
+        // Get the total number of pages
+        $pageCount = $pagination->getPageCount();
+    
+        // Get the current page number
+        $currentPage = $pagination->getCurrentPageNumber();
+    
+        // Calculate startPage and endPage based on the pagination
+        $startPage = max(1, $currentPage - 2);
+        $endPage = min($pageCount, $currentPage + 2);
+    
+        // Calculate pagesInRange array
+        $pagesInRange = range($startPage, $endPage);
+    
+        // Get the route name for pagination
+        $route = 'app_partner_front';
+    
+        // Get the query parameters
+        $query = $request->query->all();
+    
+        // Define the name of the query parameter for the page number
+        $pageParameterName = 'page';
+    
+        // Render the template to display the list of reservations
         return $this->render('partner/listPartnerFront.html.twig', [
-            'controller_name' => 'PartnerController',
-            'partners'=>$partnersBD,
+            'pagination' => $pagination,
+            'pageCount' => $pageCount,
+            'startPage' => $startPage,
+            'endPage' => $endPage,
+            'pagesInRange' => $pagesInRange,
+            'current' => $currentPage, // Pass current page number to the template
+            'route' => $route, // Pass route name to the template
+            'query' => $query, // Pass query parameters to the template
+            'pageParameterName' => $pageParameterName, // Pass the name of the page parameter
         ]);
     }
 
@@ -106,8 +179,7 @@ class PartnerController extends AbstractController
         $partner= $partnerRepository->find($id);
         $form=$this->createForm(PartnerType::class,$partner);
         $form->handleRequest($request);
-
-        if($form->isSubmitted()){
+        if($form->isSubmitted() && $form->isValid()){
             $file = $form->get('image')->getData();
             if($file)
             {

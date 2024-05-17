@@ -22,11 +22,7 @@ class Participation1
     #[Groups("post:read")]
     private ?\DateTimeInterface $startdate = null;
 
-    #[ORM\Column(type: Types::DATETIME_MUTABLE)]
-    #[Assert\GreaterThan("today", message: "The date of obtaining the certificate must be greater than today")]
-    #[Assert\NotBlank(message: "Must be filled")]
-    #[Groups("post:read")]
-    private ?\DateTimeInterface $enddate = null;
+    
 
     #[ORM\Column(length: 255)]
     #[Assert\NotBlank(message: "Must be filled")]
@@ -63,17 +59,7 @@ class Participation1
         return $this;
     }
 
-    public function getEnddate(): ?\DateTimeInterface
-    {
-        return $this->enddate;
-    }
-
-    public function setEnddate(\DateTimeInterface $enddate): static
-    {
-        $this->enddate = $enddate;
-
-        return $this;
-    }
+   
 
     public function getParticipationstatus(): ?string
     {

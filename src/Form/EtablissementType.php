@@ -4,16 +4,12 @@ namespace App\Form;
 
 use App\Entity\Etablissement;
 use Symfony\Component\Form\AbstractType;
-
 use Symfony\Component\Form\Extension\Core\Type\DateType;
-
 use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
-
 use Symfony\Component\Validator\Constraints as Assert;
-
 
 class EtablissementType extends AbstractType
 {
@@ -21,29 +17,11 @@ class EtablissementType extends AbstractType
     {
         $builder
             ->add('imgEtablissement',FileType::class, [
-
                 'label'=>false,
                 'mapped'=>false,
                 'required'=>false
             ])
             ->add('nomEtablissement')
-            'label'=>false,
-            'mapped'=>false,
-            'required'=>false
-            ])
-            ->add('nomEtablissement', null, [
-                'label' => 'Nom de l\'établissement', // Label in French
-                'constraints' => [
-                    new Assert\NotBlank([
-                        'message' => 'Le nom de l\'établissement ne doit pas être vide.',
-                    ]),
-                    new Assert\Regex([
-                        'pattern' => '/^[A-Za-zÀ-ÖØ-öø-ÿ\s]+$/',
-                        'message' => 'Le nom de l\'établissement ne doit contenir que des lettres et des espaces.',
-                    ]),
-                ],
-            ])
-
             ->add('adresseEtablissement')
             ->add('typeEtablissement', ChoiceType::class, [
                 'label' => 'Type',
@@ -59,7 +37,6 @@ class EtablissementType extends AbstractType
                     'class' => 'form-control',
                 ],
             ])
-
             ->add('telEtablissement', null, [
                 'label' => 'Numéro de téléphone de l\'établissement', // Label in French
                 'constraints' => [
@@ -67,7 +44,6 @@ class EtablissementType extends AbstractType
                         'min' => 8,
                         'max' => 8,
                         'exactMessage' => 'Le numéro de téléphone doit contenir exactement {{ limit }} chiffres.',
-                        'exactMessage' => 'The phone number must contain exactly {{ limit }} digits.',
                     ]),
                 ],
             ])
@@ -88,9 +64,8 @@ class EtablissementType extends AbstractType
                         return date('Y-m-d');
                     }
                 },
-
-                'data' => new \DateTime(),
             ])
+
         ;
     }
 

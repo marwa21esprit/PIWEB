@@ -26,11 +26,7 @@ class ApprenantsType extends AbstractType
                 'data_class' => null,
                 'attr' => ['class' => 'form-control'],
             ])
-            ->add('niveau', EntityType::class, [
-                'class' => Niveau::class,
-                'choice_label' => 'name', 
-                'attr' => ['class' => 'form-control'],
-            ])
+           
             ->add('save', SubmitType::class, [
                 'label' => 'Save',
                 'attr' => ['class' => 'btn btn-primary']

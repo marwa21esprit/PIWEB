@@ -11,7 +11,6 @@ use Symfony\Component\Form\Extension\Core\Type\NumberType;
 use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Regex;
-
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 
 class RemiseType extends AbstractType

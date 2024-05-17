@@ -3,7 +3,9 @@
 namespace App\Entity;
 
 use App\Repository\FeedbackRepository;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: FeedbackRepository::class)]
 class Feedback
@@ -20,8 +22,15 @@ class Feedback
     private ?string $level = null;
 
     #[ORM\Column(length: 255)]
+    #[Assert\NotBlank(message: "Must be filled")]
     private ?string $comment = null;
 
+    #[ORM\Column]
+    #[Assert\NotBlank(message: "Must be filled")]
+    private ?int $rating = null;
+
+    
+    
     public function getId(): ?int
     {
         return $this->id;
@@ -62,4 +71,18 @@ class Feedback
 
         return $this;
     }
+
+    public function getRating(): ?int
+    {
+        return $this->rating;
+    }
+
+    public function setRating(int $rating): static
+    {
+        $this->rating = $rating;
+
+        return $this;
+    }
+
+  
 }

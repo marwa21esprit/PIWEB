@@ -4,6 +4,7 @@ namespace App\Entity;
 
 use App\Repository\UserEtablissementRepository;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 #[ORM\Entity(repositoryClass: UserEtablissementRepository::class)]
 class UserEtablissement
@@ -11,21 +12,45 @@ class UserEtablissement
     #[ORM\Id]
     #[ORM\GeneratedValue(strategy: "AUTO")]
     #[ORM\Column(name: "id", type: "integer")]
+    #[Groups(['etablissement', 'posts:read'])]
     private $id;
 
     #[ORM\ManyToOne(targetEntity: User::class)]
+    #[Groups(['etablissement', 'posts:read'])]
     private $user;
 
     #[ORM\ManyToOne(targetEntity: Etablissement::class)]
     #[ORM\JoinColumn(name:"ID_Etablissement", referencedColumnName:"ID_Etablissement")]
+    #[Groups(['etablissement', 'posts:read'])]
     private $etablissement;
 
     #[ORM\Column(name: "liked", type: "boolean")]
+    #[Groups(['etablissement', 'posts:read'])]
     private $liked;
 
     #[ORM\Column(name: "disliked", type: "boolean")]
+    #[Groups(['etablissement', 'posts:read'])]
     private $disliked;
 
+    #[ORM\Column(name: "views", type: "integer")]
+    #[Groups(['etablissement', 'posts:read'])]
+    private $views;
+
+    #[ORM\Column(name: "favoris", type: "boolean")]
+    private $favoris = false;
+
+    // Autres getters et setters...
+
+    public function isFavoris(): ?bool
+    {
+        return $this->favoris;
+    }
+
+    public function setFavoris(bool $favoris): self
+    {
+        $this->favoris = $favoris;
+        return $this;
+    }
 
     /**
      * @return mixed
@@ -108,4 +133,15 @@ class UserEtablissement
     }
 
 
+    public function getViews(): ?int
+    {
+        return $this->views;
+    }
+
+    public function setViews(int $views): self
+    {
+        $this->views = $views;
+
+        return $this;
+    }
 }

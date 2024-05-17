@@ -31,7 +31,7 @@ class NouveauCompteNotification
         $this->mailer = $mailer;
         $this->renderer = $renderer;
     }
-    public function notify($niveaux)
+    public function notify($niveaux,MailerInterface $mailer)
     {
         // On construit le mail
         $message = (new TemplatedEmail())
@@ -40,11 +40,11 @@ class NouveauCompteNotification
             // Destinataire
             ->to('chayma.riahi@esprit.tn')
             // Corps du message (créé avec twig)
-            ->subject('alert repture de stock')
+            ->subject('A new level is added')
             ->htmlTemplate('niveau/ajout_niveau.html.twig')
             ->context(['niveaux' => $niveaux
             ]);
         // On envoie le mail
-        $this->mailer->send($message);
+        $mailer->send($message);
     }
 }

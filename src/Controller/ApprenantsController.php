@@ -19,23 +19,26 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 class ApprenantsController extends AbstractController
 {
     #[Route('/', name: 'app_apprenants_index', methods: ['GET'])]
-    public function index(ApprenantsRepository $apprenantsRepository): Response
+public function index(ApprenantsRepository $apprenantsRepository): Response
     {
-        return $this->render('apprenants/index.html.twig', [
+        return $this->render('back/apprenants/index.html.twig', [
             'apprenants' => $apprenantsRepository->findAll(),
         ]);
-    }
-  
-   #[Route("/back", name: "apprenant_back", methods: ['GET'])] 
-    public function apprenantback(ApprenantsRepository $apprenantsRepository): Response
+    } 
+
+    #[Route('/listb', name: 'app_apprenants_listback')]
+    public function listapprenantsback(): Response
     {
+
         $apprenants = $this->getDoctrine()->getRepository(Apprenants::class)->findAll();
 
-        // Passez les apprenants à la vue Twig
-        return $this->render('apprenants/listapprenantback.html.twig', [
+
+        return $this->render('back/apprenants/listback.html.twig', [
             'apprenants' => $apprenants,
         ]);
     }
+
+
 
     #[Route('/add', name: 'app_apprenants_new', methods: ['GET', 'POST'])]
     public function new(Request $request, EntityManagerInterface $entityManager): Response
@@ -70,95 +73,83 @@ class ApprenantsController extends AbstractController
             return $this->redirectToRoute('app_apprenants_index');
         }
 
-        return $this->render('apprenants/add.html.twig', [
+        return $this->render('back/apprenants/add.html.twig', [
             'form' => $form->createView(),
         ]);
     }
 
 
+    
 
     #[Route('/{id}', name: 'app_apprenants_show', methods: ['GET'])]
-    public function show(Apprenants $apprenant): Response
+    public function show($id): Response
     {
-        return $this->render('apprenants/show.html.twig', [
+        $apprenant = $this->getDoctrine()->getRepository(Apprenants::class)->find($id);
+
+        return $this->render('back/apprenants/show.html.twig', [
             'apprenant' => $apprenant,
         ]);
     }
 
-     
-    #[Route('/show/{id}', name: 'app_apprenants_showfront', methods: ['GET'])]
-    public function showfront(Apprenants $apprenant): Response
+    #[Route('/{id}/edit', name: 'app_apprenants_edit', methods: ['GET', 'POST'])]
+    public function edit(Request $request, $id, EntityManagerInterface $entityManager): Response
     {
-        return $this->render('apprenants/showfront.html.twig', [
-            'apprenant' => $apprenant,
-        ]);
-    }
-    #[Route('/listb', name: 'back')]
-public function listapprenantsback(): Response
-{
-    
-    $apprenant = $this->getDoctrine()->getRepository(Apprenants::class)->findAll();
+        $apprenant = $this->getDoctrine()->getRepository(Apprenants::class)->find($id);
 
-    
-    return $this->render('apprenants/listback.html.twig', [
-        'apprenant' => $apprenant,
-    ]);
-}
+        $form = $this->createForm(ApprenantsType::class, $apprenant);
+        $form->handleRequest($request);
 
-#[Route('/list', name: 'app_apprenants')]
-public function listapprenants(): Response
-{
-    // Fetch reservations from the database
-    $apprenant = $this->getDoctrine()->getRepository(Apprenants::class)->findAll();
+        if ($form->isSubmitted() && $form->isValid()) {
+            // Gérer l'image comme dans la méthode new
+            $imageFile = $form['image']->getData();
+            if ($imageFile) {
+                $image = md5(uniqid()) . '.' . $imageFile->guessExtension();
+                $imageFile->move(
+                    $this->getParameter('images_directory'),
+                    $image
+                );
+                $apprenant->setImage($image);
+            }
 
-    // Render the template to display the list of reservations
-    return $this->render('apprenants/list.html.twig', [
-        'apprenant' => $apprenant,
-    ]);
-}
+            // Mettre à jour l'entité dans la base de données
+            $entityManager->flush();
 
-#[Route('/{id}/edit', name: 'app_apprenants_edit', methods: ['GET', 'POST'])]
-public function edit(Request $request, Apprenants $apprenant, EntityManagerInterface $entityManager): Response
-{
-    $form = $this->createForm(ApprenantsType::class, $apprenant);
-    $form->handleRequest($request);
-
-    if ($form->isSubmitted() && $form->isValid()) {
-        // Gérer l'image comme dans la méthode new
-        $imageFile = $form['image']->getData();
-        if ($imageFile) {
-            $image = md5(uniqid()) . '.' . $imageFile->guessExtension();
-            $imageFile->move(
-                $this->getParameter('images_directory'),
-                $image
-            );
-            $apprenant->setImage($image);
+            $this->addFlash('success', 'L\'apprenant a été modifié avec succès.');
+            return $this->redirectToRoute('app_apprenants_index'); // Retourner une réponse ici
         }
-    
-        // Mettre à jour l'entité dans la base de données
-        $entityManager->flush();
-    
-        $this->addFlash('success', 'L\'apprenant a été modifié avec succès.');
-        return $this->redirectToRoute('app_apprenants_index'); // Retourner une réponse ici
+
+        // Retourner une réponse en cas où le formulaire n'est pas valide
+        return $this->render('back/apprenants/edit.html.twig', [
+            'apprenant' => $apprenant,
+            'form' => $form->createView(),
+        ]);
     }
 
-    // Retourner une réponse en cas où le formulaire n'est pas valide
-    return $this->render('apprenants/edit.html.twig', [
-        'apprenant' => $apprenant,
-        'form' => $form->createView(),
-    ]);
-}
-
-
-
-    #[Route('/{id}', name: 'app_apprenants_delete', methods: ['POST'])]
-    public function delete(Request $request, Apprenants $apprenant, EntityManagerInterface $entityManager): Response
+    #[Route('/{id}', name: 'app_apprenants_delete')]
+    public function delete(Request $request, $id, EntityManagerInterface $entityManager): Response
     {
-        if ($this->isCsrfTokenValid('delete'.$apprenant->getId(), $request->request->get('_token'))) {
+        $apprenant = $this->getDoctrine()->getRepository(Apprenants::class)->find($id);
+
             $entityManager->remove($apprenant);
             $entityManager->flush();
-        }
+
 
         return $this->redirectToRoute('app_apprenants_index', [], Response::HTTP_SEE_OTHER);
     }
+        #[Route('/search', name:'search_apprenant', methods:['GET'])]
+        public function search(Request $request): Response
+        {
+            $query = $request->query->get('query');
+
+            // Perform the search query using your repository or ORM
+            $entityManager = $this->getDoctrine()->getManager();
+            $apprenants = $entityManager->getRepository(Apprenants::class)->findBySearchQuery($query);
+
+            // Render the template with the search results
+            return $this->render('back/apprenants/listback.html.twig', [
+                'apprenants' => $apprenants,
+            ]);
+        }
+
+
 }

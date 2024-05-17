@@ -52,18 +52,11 @@ class Apprenants
    #[Groups("post:read")]
    private ?string $formationEtudies = null;
 
-   #[ORM\Column(length: 255, nullable: true)]
-   #[Assert\NotBlank(message:"Image must be provided")]
-   #[Assert\File(
-    maxSize:"5M",
-        )]
-                       
-   #[Groups("post:read")]
+   #[ORM\Column(name: "image", length: 255)]
+    #[Groups("post:read")]
 private ?string $image = null;
 
-#[ORM\ManyToOne(inversedBy: 'apprenant')]
-#[Groups("post:read")]
-private ?Niveau $niveau = null;
+
 
 #[ORM\OneToMany(targetEntity: Participation1::class, mappedBy: 'student')]
 private Collection $participation1s;
@@ -145,17 +138,9 @@ public function __construct()
         return $this;
     }
 
-    public function getNiveau(): ?Niveau
-    {
-        return $this->niveau;
-    }
+    
 
-    public function setNiveau(?Niveau $niveau): static
-    {
-        $this->niveau = $niveau;
-
-        return $this;
-    }
+    
 
     /**
      * @return Collection<int, Participation1>
@@ -186,6 +171,7 @@ public function __construct()
 
         return $this;
     }
+    
 
     
     

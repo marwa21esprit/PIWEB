@@ -144,5 +144,47 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
         return $query->getResult();
     }
 
+    public function findUsersOrderedByDate(): array
+    {
+        $lastLoginUsers = $this->createQueryBuilder('u')
+            ->where('u.lastlogin IS NOT NULL')
+            ->orderBy('u.lastlogin', 'DESC')
+            ->getQuery()
+            ->getResult();
+
+        $createdAtUsers = $this->createQueryBuilder('u')
+            ->where('u.createdAt IS NOT NULL')
+            ->orderBy('u.createdAt', 'DESC')
+            ->getQuery()
+            ->getResult();
+
+        $users = [];
+        foreach ($lastLoginUsers as $user) {
+            $users[] = [
+                'id' => $user->getId(),
+                'image' => $user->getImage(),
+                'name' => $user->getName(),
+                'date' => $user->getLastLogin(),
+                'text' => 'c\'est connecté a ',
+            ];
+        }
+
+        foreach ($createdAtUsers as $user) {
+            $users[] = [
+                'id' => $user->getId(),
+                'image' => $user->getImage(),
+                'name' => $user->getName(),
+                'date' => $user->getCreatedAt(),
+                'text' => 'a crée son compte a ',
+            ];
+        }
+
+        // Sort the events by date
+        usort($users, function($a, $b) {
+            return $b['date'] <=> $a['date'];
+        });
+
+        return $users;
+    }
 
 }

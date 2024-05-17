@@ -10,7 +10,7 @@ use Symfony\Component\Form\Extension\Core\Type\DateType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
-use Symfony\Component\Validator\Constraints as Assert;
+use VictorPrdh\RecaptchaBundle\Form\ReCaptchaType;
 
 class CertificatType extends AbstractType
 {
@@ -27,6 +27,7 @@ class CertificatType extends AbstractType
                     'Communication' => 'Communication',
                     'Ingénierie' => 'Ingénierie',
                     'Droit' => 'Droit',
+                    'Informatique' => 'Informatique',
                     'Sciences sociales' => 'Sciences sociales',
                     'Arts et design' => 'Arts et design',
                 ],
@@ -41,7 +42,6 @@ class CertificatType extends AbstractType
                     'Doctorat' => 'Doctorat',
                 ],
             ])
-
             ->add('dateObtentionCertificat', DateType::class, [
                 'widget' => 'single_text',
                 'required' => false,
@@ -59,19 +59,14 @@ class CertificatType extends AbstractType
                     }
                 },
             ])
-                'data' => new \DateTime(),
-            ])
-
             ->add('idEtablissement', EntityType::class, [
                 'class' => Etablissement::class,
                 'choice_label' => 'nomEtablissement',
                 'placeholder' => 'Select an etablissement',
-
-                'constraints' => [
-                    new Assert\NotBlank([
-                        'message' => 'Veuillez sélectionner un établissement.',
-                    ]),
-
+            ])
+            ->add('recaptcha', ReCaptchaType::class, [
+                'mapped' => false,
+                'label' => 'Captcha',
             ])
         ;
     }

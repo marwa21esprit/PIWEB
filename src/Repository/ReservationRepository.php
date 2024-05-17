@@ -21,6 +21,13 @@ class ReservationRepository extends ServiceEntityRepository
     {
         parent::__construct($registry, Reservation::class);
     }
+    public function findAllSortedByNbPl()
+    {
+        return $this->createQueryBuilder('r')
+            ->orderBy('r.nbPlaces', 'ASC')
+            ->getQuery()
+            ->getResult();
+    }
 
     public function findBySearchQuery(string $query): array
     {
@@ -31,7 +38,7 @@ class ReservationRepository extends ServiceEntityRepository
             ->getResult();
     }
 
-    public function getTotalReservations(): int
+    public function getTotalReservations(): ?int
     {
         return $this->createQueryBuilder('r')
             ->select('SUM(r.nbPlaces)') 
@@ -55,6 +62,17 @@ class ReservationRepository extends ServiceEntityRepository
     return $this->createQueryBuilder('r')
         ->select('r.nameE, SUM(r.nbPlaces) as totalPlaces')
         ->groupBy('r.nameE')
+        ->getQuery()
+        ->getResult();
+}
+
+
+public function getEventReservationsCount(): array
+{
+    return $this->createQueryBuilder('r')
+        ->select('e.nameevent AS eventName', 'SUM(r.nbPlaces) AS totalPlaces')
+        ->leftJoin('r.idEvent', 'e')
+        ->groupBy('e.idevent')
         ->getQuery()
         ->getResult();
 }

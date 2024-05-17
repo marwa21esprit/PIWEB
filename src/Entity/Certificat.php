@@ -2,7 +2,6 @@
 
 namespace App\Entity;
 
-
 use DateTime;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
@@ -30,13 +29,9 @@ class Certificat
     private ?string $niveau;
 
     #[ORM\Column(type: "datetime")]
-
-    #[Assert\NotBlank(message: "La date de l'événement ne doit pas être vide.")]
-    #[Assert\GreaterThan("today", message: "La date de l'événement doit être ultérieure à la date actuelle.")]
-    #[Assert\Type(type: "\DateTimeInterface", message: "La date de l'événement doit être de type date.")]
-
-    #[Assert\LessThan("today", message: "The date of delivration the certificate must be less than today")]
-
+    #[Assert\NotBlank(message: "La date  ne doit pas être vide.")]
+    #[Assert\LessThan("today", message: "Date  must be less than today.")]
+    #[Assert\Type(type: "\DateTimeInterface", message: "La date  doit être de type date.")]
     private ?DateTime $dateObtentionCertificat;
 
 

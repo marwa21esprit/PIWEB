@@ -13,77 +13,66 @@ use Symfony\Component\Serializer\Annotation\Groups;
 class Niveau
 {
     #[ORM\Id]
-    #[ORM\GeneratedValue(strategy:"IDENTITY")]
+    #[ORM\GeneratedValue(strategy: "AUTO")]
     #[ORM\Column(type: "integer")]
-    private ?int $id = null;
+    private $id;
 
     #[Assert\NotBlank(message: "Must be filled")]
     #[Assert\Length(
-    min: 5,
-    minMessage: "Enter a Name composed of at least 5 characters"
-)]
-#[Assert\Type(type: 'string', message: 'The level name must be a string.')]
+        min: 5,
+        minMessage: "Enter a Name composed of at least 5 characters"
+    )]
+    #[Assert\Type(type: 'string', message: 'The level name must be a string.')]
     #[Assert\Regex(
         pattern: '/^[a-zA-Z ]+$/',
         message: 'The level name can only contain letters and spaces.'
     )]
     #[ORM\Column(type: "string", length: 255)]
     #[Groups("post:read")]
-    private ?string $name = null;
+    private $name;
 
     #[Assert\NotBlank(message: "Must be filled")]
-    #[ORM\Column(name: "prerequis",length: 255)]
+    #[ORM\Column(name: "prerequis", length: 255)]
     #[Groups("post:read")]
-    private ?string $prerequis = null;
+    private $prerequis;
 
     #[Assert\NotBlank(message: "Must be filled")]
-    #[ORM\Column(name: "duree",type: "string")]
+    #[ORM\Column(name: "duree", type: "string")]
     #[Groups("post:read")]
-    private ?string $duree = null;
+    private $duree;
 
     #[ORM\Column(name: "nbformation", type: "integer")]
+    #[Assert\NotBlank(message: "Must be filled")]
     #[Assert\Positive(message: "The training number must be a positive number")]
     #[Assert\GreaterThan(value: 0, message: "The number of training must be greater than zero")]
     #[Groups("post:read")]
-    private ?int $nbformation = null;
+    private $nbformation;
 
-    #[ORM\Column(name: "certificat",length: 255)]
+    #[ORM\ManyToOne(targetEntity: Certificat::class)]
+    #[ORM\JoinColumn(name: "id_certificat", referencedColumnName: "id_certificat", nullable: false)]
+    private ?Certificat $certificat;
+
+    #[ORM\Column(name: "description", length: 255)]
     #[Assert\NotBlank(message: "Must be filled")]
     #[Groups("post:read")]
-    private ?string $certificat = null;
+    private $description;
 
-    #[ORM\Column(name: "description",length: 255)]
-    #[Assert\NotBlank(message: "Must be filled")]
+    #[ORM\Column(name: "image", length: 255)]
     #[Groups("post:read")]
-    private ?string $description = null;
-
-    #[ORM\Column(name: "image",length: 255)]
-   #[Assert\NotBlank(message:"Image must be provided")]
-   #[Assert\File(
-    maxSize:"5M",
-        )]
-
-   #[Groups("post:read")]
     private ?string $image = null;
 
     #[ORM\OneToMany(targetEntity: Apprenants::class, mappedBy: 'niveau')]
-    private Collection $apprenants;
+    private $apprenants;
 
     #[ORM\OneToMany(targetEntity: Participation1::class, mappedBy: 'level')]
-    private Collection $participation1s;
-
-   
-
-    
+    private $participation1s;
 
     public function __construct()
     {
         $this->apprenants = new ArrayCollection();
         $this->participation1s = new ArrayCollection();
-      
     }
 
-   
 
     public function getId(): ?int
     {
@@ -138,17 +127,6 @@ class Niveau
         return $this;
     }
 
-    public function getCertificat(): ?string
-    {
-        return $this->certificat;
-    }
-
-    public function setCertificat(string $certificat): static
-    {
-        $this->certificat = $certificat;
-
-        return $this;
-    }
 
     public function getDescription(): ?string
     {
@@ -162,47 +140,22 @@ class Niveau
         return $this;
     }
 
+    /**
+     * @return string|null
+     */
     public function getImage(): ?string
     {
         return $this->image;
     }
 
-    public function setImage(string $image): static
+    /**
+     * @param string|null $image
+     */
+    public function setImage(?string $image): void
     {
         $this->image = $image;
-
-        return $this;
     }
 
-    /**
-     * @return Collection<int, apprenants>
-     */
-    public function getApprenant(): Collection
-    {
-        return $this->apprenants;
-    }
-
-    public function addApprenant(apprenants $apprenant): static
-    {
-        if (!$this->apprenants->contains($apprenant)) {
-            $this->apprenants->add($apprenant);
-            $apprenant->setNiveau($this);
-        }
-
-        return $this;
-    }
-
-    public function removeApprenant(apprenants $apprenant): static
-    {
-        if ($this->apprenants->removeElement($apprenant)) {
-            // set the owning side to null (unless already changed)
-            if ($apprenant->getNiveau() === $this) {
-                $apprenant->setNiveau(null);
-            }
-        }
-
-        return $this;
-    }
 
     /**
      * @return Collection<int, Participation1>
@@ -211,6 +164,7 @@ class Niveau
     {
         return $this->participation1s;
     }
+
 
     public function addParticipation1(Participation1 $participation1): static
     {
@@ -233,10 +187,16 @@ class Niveau
 
         return $this;
     }
+    public function getCertificat(): ?Certificat
+    {
+        return $this->certificat;
+    }
 
-   
+    public function setCertificat(?Certificat $certificat): self
+    {
+        $this->certificat = $certificat;
 
-   
+        return $this;
+    }
 
-   
 }

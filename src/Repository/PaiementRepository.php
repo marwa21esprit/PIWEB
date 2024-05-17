@@ -21,7 +21,7 @@ class PaiementRepository extends ServiceEntityRepository
         parent::__construct($registry, Paiement::class);
     }
 
-    public function getTotalAmount(): int
+    public function getTotalAmount(): ?int
     {
         // Query to fetch the total number of reservations
         return $this->createQueryBuilder('p')

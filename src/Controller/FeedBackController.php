@@ -17,44 +17,72 @@ class FeedBackController extends AbstractController
     #[Route('/', name: 'app_feed_back_index', methods: ['GET'])]
     public function index(FeedbackRepository $feedbackRepository): Response
     {
-        return $this->render('feed_back/index.html.twig', [
+        return $this->render('front/feed_back/index.html.twig', [
             'feedback' => $feedbackRepository->findAll(),
         ]);
     }
 
-    #[Route('/new', name: 'app_feed_back_new', methods: ['GET', 'POST'])]
-    public function new(Request $request, EntityManagerInterface $entityManager): Response
+    #[Route('/show/{id}', name: 'app_feed_back_show', methods: ['GET'])]
+    public function show(Feedback $feedback): Response
     {
-        $feedback = new Feedback();
-        $form = $this->createForm(FeedbackType::class, $feedback);
-        $form->handleRequest($request);
-
-        if ($form->isSubmitted() && $form->isValid()) {
-            $entityManager->persist($feedback);
-            $entityManager->flush();
-
-            return $this->redirectToRoute('app_feed_back_index', [], Response::HTTP_SEE_OTHER);
-        }
-
-        return $this->renderForm('feed_back/add.html.twig', [
+        return $this->render('front/feed_back/show.html.twig', [
             'feedback' => $feedback,
-            'form' => $form,
         ]);
     }
+
+
+
+    #[Route('/new', name: 'app_feed_back_new', methods: ['GET', 'POST'])]
+   
+    public function new(Request $request): Response
+{
+    $feedback = new Feedback();
+    $form = $this->createForm(FeedbackType::class, $feedback);
+    $form->handleRequest($request);
+
+    if ($form->isSubmitted() && $form->isValid()) {
+       
+        // Save the feedback to the database
+        $entityManager = $this->getDoctrine()->getManager();
+        $entityManager->persist($feedback);
+        $entityManager->flush();
+
+        // Redirect to the feedback list or wherever appropriate
+        return $this->redirectToRoute('app_feedback_front');
+    }
+
+    return $this->render('front/feed_back/add.html.twig', [
+        'form' => $form->createView(),
+    ]);
+}
     #[Route('/avis', name: 'app_feedback_front', methods: ['GET'])]
     public function front(FeedbackRepository $feedbackRepository): Response
     {
 
-        return $this->render('feed_back/showfront.html.twig', [
+        return $this->render('front/feed_back/showfront.html.twig', [
             'feedback' => $feedbackRepository->findAll(),
         ]);
        
     }
-    #[Route('/{id}', name: 'app_feed_back_show', methods: ['GET'])]
-    public function show(Feedback $feedback): Response
+    #[Route('/listfeedBack', name: 'app_feedback_list', methods: ['GET'])]
+    
+    public function listFeedBackByRating(EntityManagerInterface $entityManager)
     {
-        return $this->render('feed_back/show.html.twig', [
-            'feedback' => $feedback,
+        // Récupérer tous les feedbacks depuis la base de données
+        $feedbacks = $entityManager->getRepository(FeedBack::class)->findAll();
+
+        // Initialiser un tableau vide pour stocker les feedbacks triés par notation
+        $feedbacksByRating = [];
+
+        // Regrouper les feedbacks par leur notation respective
+        foreach ($feedbacks as $feedback) {
+            $rating = $feedback->getRating();
+            $feedbacksByRating[$rating][] = $feedback;
+        }
+
+        // Passer les groupes de feedbacks triés à la vue Twig
+        return $this->render('feed_back/listfeedback.html.twig', [
+            'feedbacksByRating' => $feedbacksByRating,
         ]);
     }
 
@@ -70,7 +98,7 @@ class FeedBackController extends AbstractController
             return $this->redirectToRoute('app_feed_back_index', [], Response::HTTP_SEE_OTHER);
         }
 
-        return $this->renderForm('feed_back/edit.html.twig', [
+        return $this->renderForm('front/feed_back/edit.html.twig', [
             'feedback' => $feedback,
             'form' => $form,
         ]);
@@ -86,4 +114,5 @@ class FeedBackController extends AbstractController
 
         return $this->redirectToRoute('app_feed_back_index', [], Response::HTTP_SEE_OTHER);
     }
+    
 }

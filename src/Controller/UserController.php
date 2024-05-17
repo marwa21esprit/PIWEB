@@ -2,26 +2,33 @@
 
 namespace App\Controller;
 
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Routing\Annotation\Route;
+use App\Repository\UserRepository;
+use Knp\Component\Pager\PaginatorInterface;
 use App\Entity\User;
 use App\Form\ChangePasswordType;
 use App\Form\UserRecoveryType;
 use App\Form\UserType;
 use App\Form\UserWithoutPasswordType;
 use App\Repository\EtablissementRepository;
-use App\Repository\UserRepository;
+use CMEN\GoogleChartsBundle\GoogleCharts\Charts\PieChart;
+use Knp\Component\Pager\PaginatorInterface as KnpPaginatorInterface; // Alias KnpPaginatorInterfaceuse App\Entity\User;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Persistence\ManagerRegistry;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\FormError;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Mime\Email;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
-
+use Dompdf\Dompdf;
+use Dompdf\Options;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 #[Route('/user')]
 class UserController extends AbstractController
 {
@@ -280,11 +287,12 @@ class UserController extends AbstractController
     public function resetPasswordProfile(Request $request, EntityManagerInterface $entityManager ,UserPasswordHasherInterface $userPasswordHasher)
     {
         $user = $this->getUser();
+        if(!$user)
+            return $this->redirectToRoute('app_login');
 
         $form = $this->createForm(ChangePasswordType::class,$user);
         $form->handleRequest($request);
         $data = $form->getData();
-
 
         if ($form->isSubmitted() && $form->isValid()) {
             $hashedPassword = $userPasswordHasher->hashPassword($user, $data->getPassword());
@@ -308,6 +316,8 @@ class UserController extends AbstractController
     public function resetPasswordProfileAdmin(Request $request, EntityManagerInterface $entityManager ,UserPasswordHasherInterface $userPasswordHasher)
     {
         $user = $this->getUser();
+        if(!$user)
+            return $this->redirectToRoute('app_login');
 
         $form = $this->createForm(ChangePasswordType::class,$user);
         $form->handleRequest($request);
@@ -340,27 +350,131 @@ class UserController extends AbstractController
         return uniqid();
     }
     #[Route('/admin', name: 'app_users_index_admin')]
-    public function showUsersAdmin(UserRepository $userRepository): Response
-    {
-        $users=$userRepository->findAll();
-        $usersConnected = $userRepository->createQueryBuilder('u')
-            ->where('u.lastlogin IS NOT NULL')
-            ->orderBy('u.lastlogin', 'DESC')
-            ->getQuery()
-            ->getResult();
-        return $this->render('back/user/index.html.twig', [
-            'users'=>$users,
-            'usersConnected'=>$usersConnected,
-        ]);
+    public function showUsersAdmin(Request $request, UserRepository $userRepository, PaginatorInterface $paginator): Response
+{
+    // Retrieve all users
+    $allUsers = $userRepository->findAll(); // Or use appropriate method to fetch all users
+    
+    // Paginate the query
+    $pagination = $paginator->paginate(
+        $allUsers,
+        $request->query->getInt('page', 1), // Get the current page number from the request, default to 1 if not set
+        3 // Items per page
+    );
+
+    // Get the total number of pages
+    $pageCount = $pagination->getPageCount();
+    
+    // Get the current page number
+    $currentPage = $pagination->getCurrentPageNumber();
+
+    // Calculate startPage and endPage based on the pagination
+    $startPage = max(1, $currentPage - 2);
+    $endPage = min($pageCount, $currentPage + 2);
+
+    // Calculate pagesInRange array
+    $pagesInRange = range($startPage, $endPage);
+
+    // Get the route name for pagination
+    $route = 'app_users_index_admin';
+
+    // Get the query parameters
+    $query = $request->query->all();
+
+    // Define the name of the query parameter for the page number
+    $pageParameterName = 'page';
+
+    // Prepare data for the user status pie chart
+    $statusData = [];
+    $statusCounts = [];
+
+    // Count the number of users for each status
+    foreach ($allUsers as $user) {
+        $status = $user->getStatus(); // Assuming 'status' is a property of the User entity
+        if (!isset($statusCounts[$status])) {
+            $statusCounts[$status] = 1;
+        } else {
+            $statusCounts[$status]++;
+        }
     }
+
+    // Convert the status count into chart data format
+    foreach ($statusCounts as $status => $count) {
+        $statusData[] = [$status, $count];
+    }
+
+    // Prepare data for the user role pie chart
+    $roleData = [];
+    $roleCounts = [];
+
+    // Count the number of users for each role
+    foreach ($allUsers as $user) {
+        $roles = $user->getRoles(); // Assuming 'roles' is a property of the User entity
+        foreach ($roles as $role) {
+            if (!isset($roleCounts[$role])) {
+                $roleCounts[$role] = 1;
+            } else {
+                $roleCounts[$role]++;
+            }
+        }
+    }
+
+    // Convert the role count into chart data format
+    foreach ($roleCounts as $role => $count) {
+        $roleData[] = [$role, $count];
+    }
+
+    // Create a new PieChart instance for user status
+    $statusPieChart = new PieChart();
+
+    // Set status chart data
+    $statusPieChart->getData()->setArrayToDataTable([
+        ['Status', 'Number of Users'],
+        ...$statusData
+    ]);
+
+    // Set status chart options
+    $statusPieChart->getOptions()->setTitle('User Status Distribution');
+    // Set other options as needed...
+
+    // Create a new PieChart instance for user role
+    $rolePieChart = new PieChart();
+
+    // Set role chart data
+    $rolePieChart->getData()->setArrayToDataTable([
+        ['Role', 'Number of Users'],
+        ...$roleData
+    ]);
+
+    // Set role chart options
+    $rolePieChart->getOptions()->setTitle('User Role Distribution');
+    // Set other options as needed...
+
+    // Get users connected, you may need to paginate this as well
+    $usersConnected = $userRepository->findUsersOrderedByDate();
+
+    return $this->render('back/user/index.html.twig', [
+        'pagination' => $pagination,
+        'pageCount' => $pageCount,
+        'startPage' => $startPage,
+        'endPage' => $endPage,
+        'pagesInRange' => $pagesInRange,
+        'current' => $currentPage, // Pass current page number to the template
+        'route' => $route, // Pass route name to the template
+        'query' => $query, // Pass query parameters to the template
+        'pageParameterName' => $pageParameterName, // Pass the name of the page parameter,
+        'usersConnected' => $usersConnected,
+        'statusPieChart' => $statusPieChart,
+        'rolePieChart' => $rolePieChart
+    ]);
+}
+
+    
     #[Route('/admin/MonProfile', name: 'app_myprofile_admin')]
     public function MyprofileAdmin(UserRepository $userRepository): Response
     {
-        $usersConnected = $userRepository->createQueryBuilder('u')
-            ->where('u.lastlogin IS NOT NULL')
-            ->orderBy('u.lastlogin', 'DESC')
-            ->getQuery()
-            ->getResult();
+
+        $usersConnected = $userRepository->findUsersOrderedByDate();
 
         return $this->render('back/user/profile.html.twig', [
             'user' => $this->getUser(),
@@ -438,13 +552,92 @@ class UserController extends AbstractController
      * @Route("/profile/{id}", name="app_show_profile", methods={"GET"})
      */
     #[Route("/profile/show/{id}", name:"app_show_profile")]
-    public function showProfile(User $user): Response
+    public function showProfile($id,UserRepository $userRepository): Response
     {
+        $user = $userRepository->find($id);
         return $this->render('back/user/showProfile.html.twig', [
             'user' => $user,
         ]);
     }
 
+    #[Route('/r/search_user', name: 'search_user', methods: ['GET'])]
+    public function searchUser(
+        Request $request,
+        SerializerInterface $serializer,
+        UserRepository $userRepository
+    ): Response {
+        $searchValue = $request->query->get('searchValue');
+        $orderId = $request->query->get('orderid');
+
+        $em = $this->getDoctrine()->getManager();
+        $qb = $em->createQueryBuilder();
+
+        $qb->select('e')
+            ->from(User::class, 'e')
+            ->where($qb->expr()->like('e.email', ':value'))
+            ->orWhere($qb->expr()->like('e.name', ':value'))
+            ->orWhere($qb->expr()->like('e.status', ':value'))
+            ->orWhere($qb->expr()->like('e.address', ':value'))
+            ->setParameter('value', '%' . $searchValue . '%');
+
+        if ($orderId === 'DESC') {
+            $qb->orderBy('e.id', 'DESC');
+        } else {
+            $qb->orderBy('e.id', 'ASC');
+        }
+
+        $query = $qb->getQuery();
+        $users = $query->getResult();
 
 
+        // Serialize the data into JSON format
+        $jsonData = $serializer->serialize($users, 'json', [
+            'groups' => ['user:read']
+        ]);
+        return new JsonResponse($jsonData);
+
+    }
+    #[Route('/user/{id}/pdf', name: 'generate_user_pdff')]
+    public function generateUserPdf($id): Response
+    {
+        // Attempt to find the user by ID
+        $user = $this->getDoctrine()->getRepository(User::class)->find($id);
+    
+        // Check if user is not found
+        if (!$user) {
+            // Throw a more descriptive exception with the actual ID value
+            throw $this->createNotFoundException('User not found for ID: ' . $id);
+        }
+    
+        // Render the PDF with all necessary data
+        $html = $this->renderView('/back/user/generate_pdf.html.twig', [
+            'user' => $user,
+        ]);
+    
+        $options = new Options();
+        $options->set('isHtml5ParserEnabled', true);
+        $options->set('defaultFont', 'Arial');
+    
+        // Instantiate Dompdf with the configured options
+        $dompdf = new Dompdf($options);
+        $dompdf->loadHtml($html);
+    
+        // Set paper size and orientation
+        $dompdf->setPaper('A4', 'portrait');
+    
+        // Render the PDF
+        $dompdf->render();
+    
+        // Generate PDF file name
+        $pdfFileName = 'user_' . $id . '.pdf';
+    
+        // Save the generated PDF to the project directory
+        $pdfPath = $this->getParameter('kernel.project_dir') . '/public/pdf/' . $pdfFileName;
+        file_put_contents($pdfPath, $dompdf->output());
+    
+        // Output the generated PDF to the browser (inline download)
+        return new BinaryFileResponse($pdfPath);
+    }
+    
+    
 }

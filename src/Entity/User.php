@@ -2,9 +2,9 @@
 
 namespace App\Entity;
 
-
 use App\Repository\UserRepository;
 use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
@@ -19,39 +19,55 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    #[Groups(['user:read'])]
     private ?int $id ;
 
     #[ORM\Column(length: 255)]
+    #[Groups(['user:read'])]
     private ?string $name = null;
 
     #[ORM\Column(length: 180, unique: true)]
+    #[Groups(['user:read'])]
     private ?string $email = null;
 
     #[ORM\Column(length: 255)]
+    #[Groups(['user:read'])]
     private ?string $address = null ;
 
     #[ORM\Column]
+    #[Groups(['user:read'])]
     private array $roles = [];
 
     #[ORM\Column(length: 255)]
+    #[Groups(['user:read'])]
     private ?string $image = null;
 
     #[ORM\Column(type: 'datetime')]
+    #[Groups(['user:read'])]
     private ?\DateTimeInterface $lastlogin = null;
 
+    #[ORM\Column(type: 'datetime')]
+    #[Groups(['user:read'])]
+    private ?\DateTimeInterface $createdAt = null;
+
     #[ORM\Column]
+    #[Groups(['user:read'])]
     private ?string $password ;
 
     #[ORM\Column(length: 255)]
+    #[Groups(['user:read'])]
     private ?string $question ;
 
     #[ORM\Column(length: 255)]
+    #[Groups(['user:read'])]
     private ?string $answer ;
 
     #[ORM\Column(length: 255)]
+    #[Groups(['user:read'])]
     private ?string $status = 'active'; // Valeur par défaut "active"
 
     #[ORM\Column(name: "reset_code", nullable: true)]
+    #[Groups(['user:read'])]
     private ?string $resetCode = null;
 
     #[ORM\OneToMany(mappedBy: "user", targetEntity: UserEtablissement::class)]
@@ -63,6 +79,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         $this->question = '';
         $this->answer = '';
         $this->userEtablissements = new ArrayCollection();
+        $this->createdAt = new \DateTime();
     }
 
     /**
@@ -95,6 +112,22 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setLastlogin(?\DateTimeInterface $lastlogin): void
     {
         $this->lastlogin = $lastlogin;
+    }
+
+    /**
+     * @return \DateTimeInterface|null
+     */
+    public function getCreatedAt(): ?\DateTimeInterface
+    {
+        return $this->createdAt;
+    }
+
+    /**
+     * @param \DateTimeInterface|null $createdAt
+     */
+    public function setCreatedAt(?\DateTimeInterface $createdAt): void
+    {
+        $this->createdAt = $createdAt;
     }
 
     /**
@@ -137,7 +170,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this->id;
     }
 
-
     public function getEmail(): ?string
     {
         return $this->email;
@@ -148,6 +180,30 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         $this->email = $email;
 
         return $this;
+    }
+
+    /**
+     * @return Collection|UserEtablissement[]
+     */
+    public function getUserEtablissements(): Collection
+    {
+        // Assurez-vous que $userEtablissements est initialisé avant d'y accéder
+        return $this->userEtablissements;
+    }
+
+
+    /**
+     * @return Collection|Etablissement[]
+     */
+    public function getFavorites(): Collection
+    {
+        $favorites = new ArrayCollection();
+        foreach ($this->userEtablissements ?? [] as $userEtablissement) {
+            if ($userEtablissement->isFavoris()) {
+                $favorites[] = $userEtablissement->getEtablissement();
+            }
+        }
+        return $favorites;
     }
 
     /**
@@ -190,13 +246,12 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     /**
      * @see PasswordAuthenticatedUserInterface
      */
-    public function getPassword(): string
-
+    public function getPassword(): ?string
     {
         return $this->password;
     }
 
-    public function setPassword(string $password): static
+    public function setPassword(?string $password): static
     {
         $this->password = $password;
 
@@ -252,49 +307,34 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this->question;
     }
 
-
     public function setQuestion(?string $question): static
     {
         $this->question = $question;
-use Doctrine\ORM\Mapping as ORM;
-use Doctrine\DBAL\Types\Types;
 
-#[ORM\Table(name: "user")]
-#[ORM\Entity]
-class User
-{
-    #[ORM\Id]
-    #[ORM\GeneratedValue(strategy: "IDENTITY")]
-    #[ORM\Column(name: "id", type: "integer", nullable: false)]
-    private $id;
+        return $this;
+    }
 
-    #[ORM\Column(name: "role", type: "string", length: 100, nullable: false)]
-    private $role;
-
-
-    #[ORM\Column(name: "name", type: "string", length: 100, nullable: false)]
-    private $name;
-
-    #[ORM\Column(name: "email", type: "string", length: 100, nullable: false)]
-    private $email;
+    public function getAnswer(): ?string
+    {
+        return $this->answer;
+    }
 
     public function setAnswer(?string $answer): static
     {
         $this->answer = $answer;
 
-    #[ORM\Column(name: "password", type: "string", length: 100, nullable: false)]
-    private $password;
+        return $this;
+    }
 
+    public function getStatus(): ?string
+    {
+        return $this->status;
+    }
 
-    #[ORM\Column(name: "address", type: "string", length: 100, nullable: false)]
-    private $address;
+    public function setStatus(string $status): static
+    {
+        $this->status = $status;
 
-    #[ORM\Column(name: "question", type: "string", length: 100, nullable: false)]
-    private $question;
-
-    #[ORM\Column(name: "answer", type: "string", length: 100, nullable: false)]
-    private $answer;
-
-    #[ORM\Column(name: "Status", type: "string", length: 100, nullable: false)]
-    private $status;
+        return $this;
+    }
 }

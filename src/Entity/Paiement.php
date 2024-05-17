@@ -2,7 +2,6 @@
 
 namespace App\Entity;
 
-
 use Doctrine\ORM\Mapping as ORM;
 use App\Repository\PaiementRepository;
 use Doctrine\DBAL\Types\Types;
@@ -24,6 +23,7 @@ class Paiement
     #[ORM\ManyToOne(targetEntity: "Reservation")]
     #[ORM\JoinColumn(name: "id_res", referencedColumnName: "id")]
     private $idRes;
+
 
     public function getId(): ?int
     {

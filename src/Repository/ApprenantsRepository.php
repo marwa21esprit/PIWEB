@@ -45,4 +45,12 @@ class ApprenantsRepository extends ServiceEntityRepository
 //            ->getOneOrNullResult()
 //        ;
 //    }
+public function findBySearchQuery(string $query): array
+    {
+        return $this->createQueryBuilder('a')
+            ->andWhere('a.name LIKE :query')
+            ->setParameter('query', $query . '%')
+            ->getQuery()
+            ->getResult();
+    }
 }
